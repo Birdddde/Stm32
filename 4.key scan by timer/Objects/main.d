@@ -43,3 +43,4 @@
 .\objects\main.o: .\RTOS\inc\timers.h
 .\objects\main.o: .\Hardware\oled.h
 .\objects\main.o: .\System\delay.h
+.\objects\main.o: .\Hardware\key.h
