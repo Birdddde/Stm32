@@ -7,6 +7,7 @@
 xTimerHandle g_xKeyScanTimer;  // 定时器句柄
 uint8_t g_ucKeyNum = 0;
 
+/* @note:可使用EXTI让响应更快 */
 void Key_Init(void)
 {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);//使能GPIOA时钟
