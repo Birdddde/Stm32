@@ -41,3 +41,4 @@
 .\objects\key.o: .\RTOS\inc\task.h
 .\objects\key.o: .\RTOS\inc\list.h
 .\objects\key.o: Hardware\oled.h
+.\objects\key.o: Hardware\OLED_Data.h

@@ -8,16 +8,53 @@
 #include "delay.h"
 #include "key.h"
 
-void Key_Scan_Task(void *pvParameters)
+#define MENU_MAIN_LENGTH 2
+
+uint8_t Pow(uint8_t base, uint8_t powerRaised);
+
+void Menu(void *pvParameters)
 {
-   uint8_t key_value = 0;
+	 // 创建定时器
+   KeyScanTimer_Create();
+	
+	static uint8_t last_index = 0;
+	static uint8_t cur_key_value = 0;
+	static uint8_t index = 0;
+	
    while(1)
    {
-       key_value = KeyNum_Get();
-       if(key_value != 0)
-       {
-           OLED_ShowNum(2,2,key_value,2);
+       cur_key_value = KeyNum_Get();
+		
+       if(cur_key_value == 1)
+		 {			 
+			index++;
+			if(index > MENU_MAIN_LENGTH)	index = 1;
+			 
+			if(last_index != 0){
+				OLED_ReverseArea(1,1 * Pow(10,last_index - 1),128,8);
+				OLED_UpdateArea(1,1 *  Pow(10,last_index - 1),128,8); 
+			} 
+			 
+			OLED_ReverseArea(1,1 * Pow(10,index - 1),128,8);
+			OLED_UpdateArea(1,1 *  Pow(10,index - 1),128,8); 
+		
+			last_index = index;			
        }
+		 
+		 if(cur_key_value == 2)
+		 {			 
+			if(index == 1){
+				OLED_Clear();
+				OLED_ShowString(1,1,"Push Card!",OLED_6X8);
+				OLED_Update();
+			}
+			if(index == 2){
+				OLED_Clear();
+				OLED_ShowString(1,1,"Vertifing...",OLED_6X8);
+				OLED_Update();
+			}
+       }
+		 		 
        vTaskDelay(10);
    }
 }
@@ -27,14 +64,21 @@ int main(void)
 	OLED_Init();
    Key_Init();  // 初始化GPIO按键
 	
-	OLED_ShowString(1,1,"Key:");
-    // 创建定时器
-   Timer_Create();
+	OLED_ShowString(1,1," 1:Register",OLED_6X8);
+	OLED_ShowString(1,10," 2:Vertify",OLED_6X8);
+	OLED_UpdateArea(1,1,128,16); 
+
 	//创建按键扫描任务
-   xTaskCreate(Key_Scan_Task, "Key_Scan_Task", 256, NULL, 64, NULL);
+   xTaskCreate(Menu, "Menu", 256, NULL, 64, NULL);
 
     // 启动任务调度器
    vTaskStartScheduler();
 }
 
-
+uint8_t Pow(uint8_t base, uint8_t powerRaised)
+{
+    if (powerRaised != 0)
+        return (base * Pow(base, powerRaised-1));
+    else 
+        return 1;
+}

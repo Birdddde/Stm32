@@ -28,4 +28,9 @@
 .\objects\oled.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h
 .\objects\oled.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_wwdg.h
 .\objects\oled.o: .\Stm32F10x_StdPeriph_Driver\inc\misc.h
-.\objects\oled.o: Hardware\OLED_Font.h
+.\objects\oled.o: Hardware\OLED.h
+.\objects\oled.o: Hardware\OLED_Data.h
+.\objects\oled.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\oled.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\math.h
+.\objects\oled.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\oled.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stdarg.h

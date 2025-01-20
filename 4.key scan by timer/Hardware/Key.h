@@ -5,7 +5,7 @@
 	#include "timers.h"
 		
 	void Key_Init(void);
-	void Timer_Create(void);
+	void KeyScanTimer_Create(void);
 	uint8_t KeyNum_Get(void);
 
 #endif

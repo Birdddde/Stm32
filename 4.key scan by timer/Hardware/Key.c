@@ -52,7 +52,7 @@ void vKeyTimerCallback(xTimerHandle pxTimer)
 }
 
 // 创建定时器
-void Timer_Create(void)
+void KeyScanTimer_Create(void)
 {
     const TickType_t xTimerPeriod = pdMS_TO_TICKS(60);  // 定时器周期60ms
 
