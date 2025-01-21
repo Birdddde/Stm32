@@ -45,3 +45,4 @@
 .\objects\main.o: .\Hardware\OLED_Data.h
 .\objects\main.o: .\System\delay.h
 .\objects\main.o: .\Hardware\key.h
+.\objects\main.o: User\typedef.h

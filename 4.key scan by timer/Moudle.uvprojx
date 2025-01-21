@@ -724,6 +724,11 @@
               <FileType>5</FileType>
               <FilePath>.\User\stm32f10x_it.h</FilePath>
             </File>
+            <File>
+              <FileName>typedef.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\user\typedef.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
