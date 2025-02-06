@@ -44,5 +44,8 @@
 .\objects\main.o: .\Hardware\oled.h
 .\objects\main.o: .\Hardware\OLED_Data.h
 .\objects\main.o: .\System\delay.h
+.\objects\main.o: .\System\usart.h
 .\objects\main.o: .\Hardware\key.h
 .\objects\main.o: User\typedef.h
+.\objects\main.o: .\Hardware\driver_rc522.h
+.\objects\main.o: .\Hardware\rc522.h

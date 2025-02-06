@@ -190,7 +190,7 @@
             <hadIRAM2>0</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
-            <useUlib>0</useUlib>
+            <useUlib>1</useUlib>
             <EndSel>0</EndSel>
             <uLtcg>0</uLtcg>
             <nSecure>0</nSecure>
@@ -449,6 +449,16 @@
               <FileType>5</FileType>
               <FilePath>.\Hardware\OLED_Data.h</FilePath>
             </File>
+            <File>
+              <FileName>driver_rc522.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\driver_rc522.c</FilePath>
+            </File>
+            <File>
+              <FileName>driver_rc522.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\driver_rc522.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -698,6 +708,16 @@
               <FileName>Delay.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\System\Delay.h</FilePath>
+            </File>
+            <File>
+              <FileName>USART.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\System\USART.c</FilePath>
+            </File>
+            <File>
+              <FileName>USART.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\System\USART.h</FilePath>
             </File>
           </Files>
         </Group>
