@@ -1,11 +1,15 @@
 #ifndef __TYPEDEF_H
 #define __TYPEDEF_H
 	
+typedef void (*MenuFunction)(void); // 菜单功能回调函数类型
+
 typedef struct MenuItem {
-    char *label;               // 菜单项名称
-    void (*action)(void);            // 菜单项对应的操作函数
-    struct MenuItem *next;           // 指向下一个菜单项的指针
-    struct MenuItem *prev;        
+    char        *name;          // 菜单显示名称
+    struct MenuItem *parent;    // 父菜单
+    struct MenuItem *child;     // 子菜单
+    struct MenuItem *prev;      // 前一个同级菜单
+    struct MenuItem *next;      // 后一个同级菜单
+    MenuFunction func;          // 功能函数指针
 } MenuItem;
 
 #endif

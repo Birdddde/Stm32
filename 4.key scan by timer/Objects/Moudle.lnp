@@ -33,6 +33,7 @@
 ".\objects\usart.o"
 ".\objects\main.o"
 ".\objects\stm32f10x_it.o"
+".\objects\menu.o"
 ".\objects\croutine.o"
 ".\objects\event_groups.o"
 ".\objects\list.o"

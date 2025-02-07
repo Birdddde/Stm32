@@ -49,3 +49,4 @@
 .\objects\main.o: User\typedef.h
 .\objects\main.o: .\Hardware\driver_rc522.h
 .\objects\main.o: .\Hardware\rc522.h
+.\objects\main.o: User\menu.h

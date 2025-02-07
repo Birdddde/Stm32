@@ -15,13 +15,14 @@ void Key_Init(void)
 	
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_11 | GPIO_Pin_10;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1 | GPIO_Pin_11 | GPIO_Pin_10;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB,&GPIO_InitStructure);
 }
 
 uint8_t KeyNum_Get_Callback(void)
 {
+	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_0) == 0)	return 4;
 	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_1) == 0)	return 3;
 	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_10) == 0)	return 2;
 	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_11) == 0)	return 1;
@@ -34,7 +35,8 @@ void vKeyScan(void)
 {
 	static uint8_t lastState = 1;  // 记录上次按键状态
 	static uint8_t currentState = 1;
-	currentState = GPIO_READ_PIN(GPIOB,GPIO_Pin_1) & GPIO_READ_PIN(GPIOB,GPIO_Pin_11) & GPIO_READ_PIN(GPIOB,GPIO_Pin_10);  // 读取按键状态
+	currentState = GPIO_READ_PIN(GPIOB,GPIO_Pin_1) & GPIO_READ_PIN(GPIOB,GPIO_Pin_11) 
+	& GPIO_READ_PIN(GPIOB,GPIO_Pin_10) & GPIO_READ_PIN(GPIOB,GPIO_Pin_0);  // 读取按键状态
 
 	if (currentState == 0 && lastState == 1) {
 		// 按键被按下
