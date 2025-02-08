@@ -588,26 +588,27 @@ void RC522_Init( void )
 	RC522_Reset();
 }
 
-uint8_t RC522_IsConnected( void )
-{
-	if(RC522_Read_Register(VersionReg) == 0x89){
-		return 1;
-	}
-	return 0;
-}
+//uint8_t RC522_IsConnected( void )
+//{
+//	if(RC522_Read_Register(VersionReg) == 0x89){
+//		return 1;
+//	}
+//	return 0;
+//}
 
-uint8_t RC522_Test(uint8_t ucAuth_mode, uint8_t ucAddr,uint8_t* pArray_ID,uint8_t* pCard_Key){
+//uint8_t RC522_Test(uint8_t ucAuth_mode, uint8_t ucAddr,uint8_t* pArray_ID,uint8_t* pCard_Key){
 
-	if(PcdRequest ( PICC_REQALL, pArray_ID ) == MI_OK)	//寻卡
-	{		
-		if ( PcdAnticoll ( pArray_ID ) == MI_OK )			//防冲突机制
-		{    	  
-			if( PcdSelect(pArray_ID) == MI_OK )				//选卡
-			{
-			  if( PcdAuthState(ucAuth_mode,ucAddr,pCard_Key,pArray_ID) == MI_OK )	//三次相互验证
-					return 1;
-		  }
-		}
-	}
-	return 0;
-}	
+//	if(PcdRequest ( PICC_REQALL, pArray_ID ) == MI_OK)	//寻卡
+//	{		
+//		if ( PcdAnticoll ( pArray_ID ) == MI_OK )			//防冲突机制
+//		{    	  
+//			if( PcdSelect(pArray_ID) == MI_OK )				//选卡
+//			{
+//			  if( PcdAuthState(ucAuth_mode,ucAddr,pCard_Key,pArray_ID) == MI_OK )	//三次相互验证
+//					return 1;
+//		  }
+//		}
+//	}
+//	return 0;
+//}
+	

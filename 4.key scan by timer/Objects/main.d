@@ -47,6 +47,5 @@
 .\objects\main.o: .\System\usart.h
 .\objects\main.o: .\Hardware\key.h
 .\objects\main.o: User\typedef.h
-.\objects\main.o: .\Hardware\driver_rc522.h
-.\objects\main.o: .\Hardware\rc522.h
+.\objects\main.o: User\rfid.h
 .\objects\main.o: User\menu.h

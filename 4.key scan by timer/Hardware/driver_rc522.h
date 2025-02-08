@@ -11,7 +11,6 @@ char PcdSelect ( uint8_t * pSnr );
 char PcdAuthState ( uint8_t ucAuth_mode, uint8_t ucAddr, uint8_t * pKey, uint8_t * pSnr );
 char PcdWrite ( uint8_t ucAddr, uint8_t * pData );
 char PcdRead ( uint8_t ucAddr, uint8_t * pData );
-uint8_t RC522_Test(uint8_t ucAuth_mode, uint8_t ucAddr,uint8_t* pArray_ID,uint8_t* pCard_Key);
-uint8_t RC522_IsConnected( void );
+
 
 #endif

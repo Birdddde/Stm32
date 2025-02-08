@@ -759,6 +759,16 @@
               <FileType>5</FileType>
               <FilePath>.\User\Menu.h</FilePath>
             </File>
+            <File>
+              <FileName>RFID.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\RFID.c</FilePath>
+            </File>
+            <File>
+              <FileName>RFID.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\User\RFID.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
