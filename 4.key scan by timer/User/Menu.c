@@ -3,17 +3,21 @@
 #include "delay.h"
 #include "oled.h"
 #include "typedef.h"
+#include "freertos.h"
 
 #define OPERATION_NONE 0
 #define OPERATION_REGISTER 1
 #define OPERATION_REMOVE 2
+
+extern TaskHandle_t g_xRC522Handle,g_xMenuHandle;
+extern volatile MenuState_t menuState;
 
 MenuItem* current_menu = NULL;  // 当前选中菜单
 MenuItem* menu_root = NULL;     // 根菜单
 uint8_t display_offset = 0;     // 显示偏移量（用于长列表）
 
 // 声明所有菜单项（静态分配）
-MenuItem menu_main, menu_settings, menu_system_info;
+MenuItem menu_main,menu_exit, menu_settings, menu_system_info;
 MenuItem menu_register,menu_remove,menu_rfid,menu_finger,menu_face;
 uint8_t g_ucOperation;
 
@@ -48,10 +52,36 @@ void Settings_Func(void) {
 }
 
 void Operation_Func(void) {
-    // 实际硬件操作
-	 OLED_ShowNum(0,32,g_ucOperation,1,OLED_6X8);
-    OLED_UpdateArea(0,32,128,8);
+    // 实际硬件操作 
+	 OLED_ShowNum(0,24,g_ucOperation,1,OLED_6X8);
+	 OLED_UpdateArea(0,24,128,16);
+	 switch (g_ucOperation){
+		 case OPERATION_REGISTER:
+			OLED_ShowString(0,32,"Plese put card to",OLED_6X8);
+			OLED_ShowString(0,40,"register !",OLED_6X8);
+			vTaskResume(g_xRC522Handle);
+			break;
+		 case OPERATION_REMOVE:
+			OLED_ShowString(0,32,"Plese put card to",OLED_6X8);
+			OLED_ShowString(0,40,"remove !",OLED_6X8);
+			vTaskResume(g_xRC522Handle);
+			break;
+		 case OPERATION_NONE:
+			OLED_ShowString(0,32,"Error occured",OLED_6X8);
+			break;
+	 }
+	xTaskNotify(g_xRC522Handle, g_ucOperation, eSetBits);
+	OLED_UpdateArea(0,32,128,16);
+}
+
+void Exit_Func(void) {
+    OLED_Clear();
+    OLED_Update();
     Delay_ms(1000);
+	
+	 menuState = MENU_INACTIVE;
+	 vTaskResume(g_xRC522Handle);
+	
 }
 
 void Show_SystemInfo(void) {
@@ -67,13 +97,19 @@ void Menu_Init(void) {
     menu_main.parent = NULL;
     menu_main.child = &menu_settings;
     menu_main.func = NULL;
-
+	 menu_main.next = &menu_exit;
+	 
+	 menu_exit.name = "Exit";
+    menu_exit.parent = NULL;
+    menu_exit.child = NULL;
+    menu_exit.func = Exit_Func;
+	 menu_exit.prev = &menu_main;
     // 设置子菜单
     menu_settings.name = "Settings";
     menu_settings.parent = &menu_main;
     menu_settings.child = &menu_register;
     menu_settings.func = Settings_Func;
-
+	 // 设置子菜单
     menu_register.name = "Register";
     menu_register.parent = &menu_settings;
     menu_register.child = &menu_rfid;
@@ -85,7 +121,7 @@ void Menu_Init(void) {
     menu_remove.child = &menu_rfid;
     menu_remove.func = Remove_Func;
 	 menu_remove.prev = &menu_register;
-	 
+	 // 设置子菜单	 
 	 menu_rfid.name = "RFID Card";
     menu_rfid.parent = &menu_register;
     menu_rfid.child = NULL;
@@ -115,10 +151,6 @@ void Menu_Init(void) {
     // 初始化指针
     current_menu = &menu_main;
     menu_root = &menu_main;
-	 
-	 OLED_ShowString(0,48,"<1>up       <2>down",OLED_6X8);
-	 OLED_ShowString(0,56,"<3>confirm  <4>back",OLED_6X8);
-	 OLED_Update();
 }
 
 void Key_Handler(uint8_t key) {

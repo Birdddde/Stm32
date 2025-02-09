@@ -34,3 +34,15 @@
 .\objects\oled.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\math.h
 .\objects\oled.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\oled.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stdarg.h
+.\objects\oled.o: .\RTOS\inc\freertos.h
+.\objects\oled.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\oled.o: .\RTOS\portable\FreeRTOSConfig.h
+.\objects\oled.o: .\RTOS\inc\projdefs.h
+.\objects\oled.o: .\RTOS\inc\portable.h
+.\objects\oled.o: .\RTOS\inc\deprecated_definitions.h
+.\objects\oled.o: .\RTOS\portable\portmacro.h
+.\objects\oled.o: .\RTOS\inc\mpu_wrappers.h
+.\objects\oled.o: .\RTOS\inc\semphr.h
+.\objects\oled.o: .\RTOS\inc\queue.h
+.\objects\oled.o: .\RTOS\inc\task.h
+.\objects\oled.o: .\RTOS\inc\list.h

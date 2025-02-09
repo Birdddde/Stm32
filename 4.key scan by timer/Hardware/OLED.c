@@ -24,6 +24,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include "freertos.h"
+#include "semphr.h"  
 
 /**
   * 数据存储格式：
@@ -82,6 +84,7 @@
 uint8_t OLED_DisplayBuf[8][128];
 
 /*********************全局变量*/
+extern SemaphoreHandle_t xOledMutex ;
 
 
 /*引脚配置*********************/
@@ -414,14 +417,18 @@ uint8_t OLED_IsInAngle(int16_t X, int16_t Y, int16_t StartAngle, int16_t EndAngl
 void OLED_Update(void)
 {
 	uint8_t j;
-	/*遍历每一页*/
-	for (j = 0; j < 8; j ++)
-	{
-		/*设置光标位置为每一页的第一列*/
-		OLED_SetCursor(j, 0);
-		/*连续写入128个数据，将显存数组的数据写入到OLED硬件*/
-		OLED_WriteData(OLED_DisplayBuf[j], 128);
-	}
+//	if (xSemaphoreTake(xOledMutex, portMAX_DELAY) == pdTRUE) {
+		/*遍历每一页*/
+		for (j = 0; j < 8; j ++)
+		{
+			/*设置光标位置为每一页的第一列*/
+			OLED_SetCursor(j, 0);
+			/*连续写入128个数据，将显存数组的数据写入到OLED硬件*/
+			OLED_WriteData(OLED_DisplayBuf[j], 128);
+		}
+		// 释放 OLED 互斥锁
+//        xSemaphoreGive(xOledMutex);
+//	}
 }
 
 /**
@@ -442,28 +449,31 @@ void OLED_UpdateArea(int16_t X, int16_t Y, uint8_t Width, uint8_t Height)
 {
 	int16_t j;
 	int16_t Page, Page1;
-	
-	/*负数坐标在计算页地址时需要加一个偏移*/
-	/*(Y + Height - 1) / 8 + 1的目的是(Y + Height) / 8并向上取整*/
-	Page = Y / 8;
-	Page1 = (Y + Height - 1) / 8 + 1;
-	if (Y < 0)
-	{
-		Page -= 1;
-		Page1 -= 1;
-	}
-	
-	/*遍历指定区域涉及的相关页*/
-	for (j = Page; j < Page1; j ++)
-	{
-		if (X >= 0 && X <= 127 && j >= 0 && j <= 7)		//超出屏幕的内容不显示
+//	if (xSemaphoreTake(xOledMutex, portMAX_DELAY) == pdTRUE) {
+		/*负数坐标在计算页地址时需要加一个偏移*/
+		/*(Y + Height - 1) / 8 + 1的目的是(Y + Height) / 8并向上取整*/
+		Page = Y / 8;
+		Page1 = (Y + Height - 1) / 8 + 1;
+		if (Y < 0)
 		{
-			/*设置光标位置为相关页的指定列*/
-			OLED_SetCursor(j, X);
-			/*连续写入Width个数据，将显存数组的数据写入到OLED硬件*/
-			OLED_WriteData(&OLED_DisplayBuf[j][X], Width);
+			Page -= 1;
+			Page1 -= 1;
 		}
-	}
+		
+		/*遍历指定区域涉及的相关页*/
+		for (j = Page; j < Page1; j ++)
+		{
+			if (X >= 0 && X <= 127 && j >= 0 && j <= 7)		//超出屏幕的内容不显示
+			{
+				/*设置光标位置为相关页的指定列*/
+				OLED_SetCursor(j, X);
+				/*连续写入Width个数据，将显存数组的数据写入到OLED硬件*/
+				OLED_WriteData(&OLED_DisplayBuf[j][X], Width);
+			}
+		}
+			// 释放 OLED 互斥锁
+//	  xSemaphoreGive(xOledMutex);
+//	}
 }
 
 /**

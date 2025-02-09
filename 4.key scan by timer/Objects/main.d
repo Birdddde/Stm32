@@ -41,6 +41,7 @@
 .\objects\main.o: .\RTOS\inc\list.h
 .\objects\main.o: .\RTOS\inc\queue.h
 .\objects\main.o: .\RTOS\inc\timers.h
+.\objects\main.o: .\RTOS\inc\semphr.h
 .\objects\main.o: .\Hardware\oled.h
 .\objects\main.o: .\Hardware\OLED_Data.h
 .\objects\main.o: .\System\delay.h

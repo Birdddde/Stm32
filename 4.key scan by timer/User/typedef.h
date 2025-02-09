@@ -12,4 +12,9 @@ typedef struct MenuItem {
     MenuFunction func;          // 功能函数指针
 } MenuItem;
 
+typedef enum {
+    MENU_ACTIVE,
+    MENU_INACTIVE
+} MenuState_t;
+
 #endif
