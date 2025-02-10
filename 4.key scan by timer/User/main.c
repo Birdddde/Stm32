@@ -47,38 +47,57 @@ void MenuTask(void *p){
 
 void RC522Task(void *p){
 	
-	uint8_t ucStatus;
+	uint8_t ucStatus,ucCur_key,ucFlag_admin = 0;
 	uint32_t ulNotificationValue;
 	
 	while(1){
 		
-		uint8_t cur_key = KeyNum_Get();
-		if (cur_key == 3) {
+		ucCur_key = KeyNum_Get();
+		ucStatus = RFID_Scan();
+		
+		if(ucCur_key == 3 && ucFlag_admin) {
 			if(menuState == MENU_INACTIVE){
+				 ucFlag_admin = 0;
 				 xTaskNotify(g_xMenuHandle, 0x01, eSetBits);
 				 vTaskSuspend(NULL);
 			}
 		}
-		
+
 		if(xTaskNotifyWait(0, 0x03, &ulNotificationValue, 0) == pdPASS) {
             if (ulNotificationValue & 0x01) {
                 printf("Register");
-                while(!RFID_Register());
+                while( !RFID_Register() ){
+						if (KeyNum_Get() == 4) {
+							printf("Exit");
+							break;
+						}
+					 }
                 vTaskSuspend(NULL);
             }
             if (ulNotificationValue & 0x02) {
                 printf("Remove");
-                while(!RFID_Remove());
+                while( !RFID_Remove() ){
+						if (KeyNum_Get() == 4) {
+							printf("Exit");
+							break;
+						}
+					 }
                 vTaskSuspend(NULL);
             }
       }	
 		
-		ucStatus = RFID_Scan();
 		if(ucStatus){
 			RFID_ReadBlock(7);
 			RFID_ReadBlock(6);
+			OLED_ShowString(0,0,"Pass Allowed",OLED_8X16);
+			OLED_ShowString(0,16,"RFID",OLED_8X16);
+			OLED_UpdateArea(0,0,128,32);
+			vTaskDelay(pdMS_TO_TICKS(1000));
+			OLED_ClearArea(0,0,128,32);
+			OLED_UpdateArea(0,0,128,32);
+			ucFlag_admin = 1;
 		}
-		
+		vTaskDelay(pdMS_TO_TICKS(100)); // 非激活状态时降低检测频
 	}
 }
 
