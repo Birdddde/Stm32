@@ -45,8 +45,11 @@
 .\objects\main.o: .\Hardware\oled.h
 .\objects\main.o: .\Hardware\OLED_Data.h
 .\objects\main.o: .\System\delay.h
-.\objects\main.o: .\System\usart.h
+.\objects\main.o: .\System\uart1.h
+.\objects\main.o: .\System\uart2.h
 .\objects\main.o: .\Hardware\key.h
 .\objects\main.o: User\typedef.h
 .\objects\main.o: User\rfid.h
 .\objects\main.o: User\menu.h
+.\objects\main.o: .\Hardware\driver_as608.h
+.\objects\main.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\string.h

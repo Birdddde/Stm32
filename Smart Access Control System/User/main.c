@@ -9,17 +9,37 @@
 
 #include "oled.h"
 #include "delay.h"
-#include "usart.h"
+#include "uart1.h"
+#include "uart2.h"
 #include "key.h"
 #include "typedef.h"
 #include "rfid.h"
 #include "menu.h"
+#include "driver_as608.h"
 
 #define MENU_MAIN_LENGTH 3
 
 TaskHandle_t g_xRC522Handle = NULL;
 TaskHandle_t g_xMenuHandle = NULL;
+
 volatile MenuState_t menuState = MENU_INACTIVE;
+extern QueueHandle_t xQueueUart2;
+
+
+void AS608Task(void *p){
+
+	As608_PacketInfo Packet;
+	Packet.Head=0xEF01;
+	Packet.Address=0xFFFFFFFF;
+	while(1){		
+		uint8_t frame[1] = {0x01};
+		if(AS608_Read(&Packet))
+			AS608_SendCommand(0x01,0x0004,0x02,frame);
+
+	
+	}
+
+}
 
 void MenuTask(void *p){
 
@@ -103,15 +123,17 @@ void RC522Task(void *p){
 
 int main(void)
 {
-	Serial_Init();
+	Serial1_Init();
 	OLED_Init();
 	RFID_Init();
    Key_Init();  
-		
+	AS608_Init();
+	
 	KeyScanTimer_Create();
 	
-	xTaskCreate(MenuTask, "Menu", 128, NULL, 60, &g_xMenuHandle);
-	xTaskCreate(RC522Task, "RC522", 128, NULL, 64, &g_xRC522Handle);
+//	xTaskCreate(MenuTask, "Menu", 128, NULL, 60, &g_xMenuHandle);
+//	xTaskCreate(RC522Task, "RC522", 128, NULL, 64, &g_xRC522Handle);
+	xTaskCreate(AS608Task, "AS608", 128, NULL, 64, &g_xRC522Handle);
 	
    vTaskStartScheduler();
 }

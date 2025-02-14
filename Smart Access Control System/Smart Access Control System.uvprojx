@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>Target_1</TargetName>
+      <TargetName>Smart Access Control System</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060960::V5.06 update 7 (build 960)::.\ARMCC</pCCUsed>
@@ -49,7 +49,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>Moudle</OutputName>
+          <OutputName>Smart Access Control System</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
@@ -459,6 +459,16 @@
               <FileType>5</FileType>
               <FilePath>.\Hardware\driver_rc522.h</FilePath>
             </File>
+            <File>
+              <FileName>driver_as608.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\driver_as608.c</FilePath>
+            </File>
+            <File>
+              <FileName>driver_as608.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\driver_as608.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -710,14 +720,24 @@
               <FilePath>.\System\Delay.h</FilePath>
             </File>
             <File>
-              <FileName>USART.c</FileName>
+              <FileName>UART1.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\System\USART.c</FilePath>
+              <FilePath>.\System\UART1.c</FilePath>
             </File>
             <File>
-              <FileName>USART.h</FileName>
+              <FileName>UART1.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\System\USART.h</FilePath>
+              <FilePath>.\System\UART1.h</FilePath>
+            </File>
+            <File>
+              <FileName>UART2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\System\UART2.c</FilePath>
+            </File>
+            <File>
+              <FileName>UART2.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\System\UART2.h</FilePath>
             </File>
           </Files>
         </Group>

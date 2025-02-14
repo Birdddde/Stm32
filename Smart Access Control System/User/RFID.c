@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "string.h"
 #include "driver_rc522.h"  
-#include "usart.h" 
+#include "uart1.h" 
 
 uint8_t ucaControlB[16] = {0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,		 
 									0xff,0x07,0x80,0x69,					 

@@ -14,7 +14,7 @@ extern volatile MenuState_t menuState;
 
 MenuItem* current_menu = NULL;  // 当前选中菜单
 MenuItem* menu_root = NULL;     // 根菜单
-uint8_t display_offset = 0;     // 显示偏移量（用于长列表）
+uint8_t display_offset = 0;     
 
 // 声明所有菜单项（静态分配）
 MenuItem menu_main,menu_exit, menu_settings, menu_system_info;

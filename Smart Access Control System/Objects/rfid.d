@@ -32,4 +32,4 @@
 .\objects\rfid.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\rfid.o: .\Hardware\driver_rc522.h
 .\objects\rfid.o: .\Hardware\rc522.h
-.\objects\rfid.o: .\System\usart.h
+.\objects\rfid.o: .\System\uart1.h
