@@ -27,15 +27,19 @@ extern QueueHandle_t xQueueUart2;
 
 
 void AS608Task(void *p){
+	as608_status_t as608_status;
+	uint8_t status = 0;;
 
-	As608_PacketInfo Packet;
-	Packet.Head=0xEF01;
-	Packet.Address=0xFFFFFFFF;
-	while(1){		
-		uint8_t frame[1] = {0x01};
-		if(AS608_Read(&Packet))
-			AS608_SendCommand(0x01,0x0004,0x02,frame);
+	while(1){
+		while( !status )
+		{
+			if(PS_GetImage(&as608_status)){
+				OLED_ShowHexNum(0,0,as608_status,2,OLED_8X16);
+				OLED_Update();	
+				status = 1;
+			}
 
+		}
 	
 	}
 

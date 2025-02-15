@@ -4,10 +4,8 @@
 #include "typedef.h"
 #include "driver_as608.h"
 
-#define MAX_PACKET_SIZE 50
-
 QueueHandle_t xQueueUart2;
-uint8_t	Packet[MAX_PACKET_SIZE];        
+uint8_t	Packet[AS608_MAX_PACKET_SIZE];        
 UartReceiver Uart2Receiver;
 UartReceiver* Uart2_Rx = &Uart2Receiver;
 
@@ -73,7 +71,7 @@ void Uart2_Init(void)
 
 void vProcessReceivedByte(uint8_t byte) {
 	
-    if (Uart2_Rx->data_len + 2 + 4 + 3 > MAX_PACKET_SIZE) {
+    if (Uart2_Rx->data_len + 2 + 4 + 3 > AS608_MAX_PACKET_SIZE) {
         // 数据包长度超过缓冲区大小，重新初始化接收状态机
         Uart2_Receiver_Init();
         return;

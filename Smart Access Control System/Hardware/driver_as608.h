@@ -7,6 +7,8 @@
 
 #define AS608_HEADER 0xEF01
 #define AS608_ADDRESS 0xFFFFFFFF
+#define  AS608_MAX_PACKET_SIZE 64
+
 /**
  * @brief chip command definition
  */
@@ -59,7 +61,7 @@ typedef struct {
 	uint8_t ConfirmCode;
 	uint8_t Params[32];
 	uint16_t CheckSum;
-} As608_PacketInfo;
+} As608_PacketInfo_t;
 #pragma pack()
 
 typedef enum
@@ -179,36 +181,9 @@ typedef struct as608_params_s
     uint16_t n_9600;                        /**< n times of 9600 */
 } as608_params_t;
 
-typedef struct as608_handle_s
-{
-    uint8_t (*uart_init)(void);                               /**< point to a uart_init function address */
-    uint8_t (*uart_deinit)(void);                             /**< point to a uart_deinit function address */
-    uint16_t (*uart_read)(uint8_t *buf, uint16_t len);        /**< point to a uart_read function address */
-    uint8_t (*uart_flush)(void);                              /**< point to a uart_flush function address */
-    uint8_t (*uart_write)(uint8_t *buf, uint16_t len);        /**< point to a uart_write function address */
-    void (*delay_ms)(uint32_t ms);                            /**< point to a delay_ms function address */
-    void (*debug_print)(const char *const fmt, ...);          /**< point to a debug_print function address */
-    uint8_t inited;                                           /**< inited flag */
-    uint8_t buf[384];                                         /**< frame buf */
-    uint8_t status;                                           /**< status */
-    uint16_t packet_size;                                     /**< packet size */
-} as608_handle_t;
-
-typedef struct as608_info_s
-{
-    char chip_name[32];                /**< chip name */
-    char manufacturer_name[32];        /**< manufacturer name */
-    char interface[8];                 /**< chip interface name */
-    float supply_voltage_min_v;        /**< chip min supply voltage */
-    float supply_voltage_max_v;        /**< chip max supply voltage */
-    float max_current_ma;              /**< chip max current */
-    float temperature_min;             /**< chip min operating temperature */
-    float temperature_max;             /**< chip max operating temperature */
-    uint32_t driver_version;           /**< driver version */
-} as608_info_t;
-
 #endif
 
 void AS608_Init(void);
-uint8_t AS608_Read(As608_PacketInfo * As608_Packet);
+uint8_t AS608_Read(void);
 uint8_t AS608_SendCommand(uint8_t Identifier,uint16_t Packet_Length,uint8_t Command,uint8_t* Params);
+uint8_t PS_GetImage(as608_status_t* status);
