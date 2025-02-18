@@ -789,6 +789,16 @@
               <FileType>5</FileType>
               <FilePath>.\User\RFID.h</FilePath>
             </File>
+            <File>
+              <FileName>Finger.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\User\Finger.h</FilePath>
+            </File>
+            <File>
+              <FileName>Finger.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\Finger.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

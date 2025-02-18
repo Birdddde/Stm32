@@ -24,6 +24,8 @@ extern const ChineseCell_t OLED_CF16x16[];
 extern const uint8_t Diode[];
 /*按照上面的格式，在这个位置加入新的图像数据声明*/
 //...
+extern const uint8_t Lock32x32[];
+extern const uint8_t Unlock32x32[];
 
 #endif
 

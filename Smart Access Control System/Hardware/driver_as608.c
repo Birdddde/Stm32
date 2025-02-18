@@ -1,8 +1,6 @@
 #include "stm32f10x.h"                  // Device header
 #include "driver_as608.h"
-#include <math.h>
 #include "uart2.h"
-#include "typedef.h"
 
 #include "freertos.h"
 #include "queue.h"
@@ -13,14 +11,38 @@
 
 extern QueueHandle_t xQueueUart2; 
 uint8_t buffer[AS608_MAX_PACKET_SIZE];
+
 As608_PacketInfo_t As608_Packet_t={0xEF01,0xFFFFFFFF};
 As608_PacketInfo_t* As608_Packet = &As608_Packet_t;
 
-uint8_t AS608_Read(void){
+void PS_StaGPIO_Init(void){   
+	GPIO_InitTypeDef  GPIO_InitStructure;
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+	
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_ResetBits(GPIOB,GPIO_Pin_12);
+}
 
+uint8_t PS_StaIO(void){
+	return GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_12);
+}
+
+void AS608_Init(void) {
+	 Serial2_Init();
+	 PS_StaGPIO_Init();
+}
+
+uint8_t AS608_Read(uint16_t delay_ms){
+	
 	uint8_t pindex = 10;
 	uint16_t sum = 0;
-	if(xQueueReceive(xQueueUart2,buffer, pdMS_TO_TICKS(100) ) == pdPASS){		
+	
+	vTaskDelay( pdMS_TO_TICKS(delay_ms) );	//等待AS608应答,延时函数
+	
+	if(xQueueReceive(xQueueUart2,buffer, pdMS_TO_TICKS(500) ) == pdPASS){		
 
 		As608_Packet->Identifier = buffer[6];
 		As608_Packet->Length = (uint16_t)buffer[7] << 8 | (uint16_t)buffer[8];
@@ -35,6 +57,7 @@ uint8_t AS608_Read(void){
 		sum += As608_Packet->Identifier + As608_Packet->Length + As608_Packet->ConfirmCode;
 		As608_Packet->CheckSum = (uint16_t)buffer[pindex] << 8|
 			(uint16_t)buffer[pindex+1];
+		
 		if(As608_Packet->CheckSum == sum){
 			return 1;
 		}
@@ -73,34 +96,126 @@ uint8_t AS608_SendCommand(uint8_t Identifier,uint16_t Packet_Length,uint8_t Comm
 	return 0;
 }
 
-void PS_StaGPIO_Init(void)
-{   
-	GPIO_InitTypeDef  GPIO_InitStructure;
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_ResetBits(GPIOB,GPIO_Pin_12);
+uint8_t PS_GetImage(as608_status_t* Status){
+	uint16_t buffer_length = 0x0003;	
 	
-}
-
-// 系统初始化函数
-void AS608_Init(void) {
-	 Serial2_Init();
-	 PS_StaGPIO_Init();
-}
-
-
-uint8_t PS_GetImage(as608_status_t* status ){
-
-	AS608_SendCommand(AS608_TYPE_COMMAND,0x0003,AS608_COMMAND_GET_IMAGE,NULL);
-	vTaskDelay(pdMS_TO_TICKS(500));
-	if(AS608_Read()){
-		*status =(as608_status_t)As608_Packet->ConfirmCode;
+	AS608_SendCommand(AS608_TYPE_COMMAND,buffer_length,AS608_COMMAND_GET_IMAGE,NULL);
+	
+	if(AS608_Read(1500)){
+		*Status =(as608_status_t)As608_Packet->ConfirmCode;
 		return 1;	//Receive sucessed
 	}
 		return 0;	//Receive failed
 }
+
+uint8_t PS_GenChar(as608_status_t* Status,as608_buffer_number_t Buffer_id){
+
+	uint16_t buffer_length = 0x0004;
+	
+	uint8_t* buffer = (uint8_t*)pvPortMalloc(buffer_length - CHECKSUM_BYTES - Command_BYTES);
+	if (buffer == NULL) return 2;		//memory malloc failed
+	buffer[0] = Buffer_id;
+	
+	AS608_SendCommand(AS608_TYPE_COMMAND,0x0004,AS608_COMMAND_GEN_CHAR,buffer);
+	vPortFree(buffer);
+	
+	if(AS608_Read(1500)){
+		*Status =(as608_status_t)As608_Packet->ConfirmCode;
+		return 1;	//Receive sucessed
+	}
+		return 0;	//Receive failed
+}
+
+uint8_t PS_Search(as608_status_t* Status,uint16_t* Page_id ,uint16_t* Match_score ,as608_buffer_number_t Buffer_id,uint16_t StartPage,uint16_t PageNum){
+
+	uint16_t buffer_length = 0x0008;
+	uint8_t* buffer = (uint8_t*)pvPortMalloc(buffer_length - CHECKSUM_BYTES - Command_BYTES);
+	if (buffer == NULL) return 2;		//memory malloc failed
+	
+	buffer[0] = Buffer_id;
+	buffer[1] = StartPage >> 8;
+	buffer[2] = StartPage;
+	buffer[3] = PageNum   >> 8;
+	buffer[4] = PageNum;
+
+	AS608_SendCommand(AS608_TYPE_COMMAND,buffer_length,AS608_COMMAND_SEARCH,buffer);
+	vPortFree(buffer);
+	
+	if(AS608_Read(2000)){
+		*Status =(as608_status_t)As608_Packet->ConfirmCode;
+		*Page_id =(uint16_t) As608_Packet->Params[0] << 8|
+			(uint16_t) As608_Packet ->Params[1];
+		*Match_score =(uint16_t) As608_Packet->Params[2] << 8|
+			(uint16_t) As608_Packet ->Params[3];
+		return 1;	//Receive sucessed
+	}
+		return 0;	//Receive failed
+}
+
+uint8_t PS_RegModel(as608_status_t* Status){
+	uint16_t buffer_length = 0x0003;	
+	
+	AS608_SendCommand(AS608_TYPE_COMMAND,buffer_length,AS608_COMMAND_REG_MODEL,NULL);
+	
+	if(AS608_Read(2000)){
+		*Status =(as608_status_t)As608_Packet->ConfirmCode;
+		return 1;	//Receive sucessed
+	}
+		return 0;	//Receive failed
+}
+
+uint8_t PS_StoreChar(as608_status_t* Status,as608_buffer_number_t Buffer_id,uint16_t Page_id){
+
+	uint16_t buffer_length = 0x0006;
+	uint8_t* buffer = (uint8_t*)pvPortMalloc(buffer_length - CHECKSUM_BYTES - Command_BYTES);
+	if (buffer == NULL) return 2;		//memory malloc failed
+	
+	buffer[0] = Buffer_id;
+	buffer[1] = Page_id >> 8;
+	buffer[2] = Page_id;
+
+	AS608_SendCommand(AS608_TYPE_COMMAND,buffer_length,AS608_COMMAND_STORE_CHAR,buffer);
+	vPortFree(buffer);
+	
+	if(AS608_Read(2000)){
+		*Status =(as608_status_t)As608_Packet->ConfirmCode;
+		return 1;	//Receive sucessed
+	}
+		return 0;	//Receive failed
+}
+
+uint8_t PS_DeletChar(as608_status_t* Status,uint16_t Page_id,uint16_t Count){
+
+	uint16_t buffer_length = 0x0007;
+	uint8_t* buffer = (uint8_t*)pvPortMalloc(buffer_length - CHECKSUM_BYTES - Command_BYTES);
+	if (buffer == NULL) return 2;		//memory malloc failed
+	
+	buffer[0] = Page_id >> 8;
+	buffer[1] = Page_id;
+	buffer[2] = Count >> 8;
+	buffer[3] = Count;
+	
+	AS608_SendCommand(AS608_TYPE_COMMAND,buffer_length,AS608_COMMAND_DELETE_CHAR,buffer);
+	vPortFree(buffer);
+	
+	if(AS608_Read(2000)){
+		*Status =(as608_status_t)As608_Packet->ConfirmCode;
+		return 1;	//Receive sucessed
+	}
+		return 0;	//Receive failed
+}
+
+uint8_t PS_Empty(as608_status_t* Status){
+	uint16_t buffer_length = 0x0003;	
+	
+	AS608_SendCommand(AS608_TYPE_COMMAND,buffer_length,AS608_COMMAND_EMPTY,NULL);
+		
+	if(AS608_Read(3000)){
+		*Status =(as608_status_t)As608_Packet->ConfirmCode;
+		return 1;	//Receive sucessed
+	}
+		return 0;	//Receive failed
+}
+
+
 

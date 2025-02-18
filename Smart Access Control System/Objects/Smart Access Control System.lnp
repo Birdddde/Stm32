@@ -37,6 +37,7 @@
 ".\objects\stm32f10x_it.o"
 ".\objects\menu.o"
 ".\objects\rfid.o"
+".\objects\finger.o"
 ".\objects\croutine.o"
 ".\objects\event_groups.o"
 ".\objects\list.o"

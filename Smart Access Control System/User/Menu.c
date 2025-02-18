@@ -5,21 +5,17 @@
 #include "typedef.h"
 #include "freertos.h"
 
-#define OPERATION_NONE 0
-#define OPERATION_REGISTER 1
-#define OPERATION_REMOVE 2
-
 extern TaskHandle_t g_xRC522Handle,g_xMenuHandle;
 extern volatile MenuState_t menuState;
 
 MenuItem* current_menu = NULL;  // 当前选中菜单
 MenuItem* menu_root = NULL;     // 根菜单
+Menu_Operation_t g_xMenu_Opera;
 uint8_t display_offset = 0;     
 
 // 声明所有菜单项（静态分配）
 MenuItem menu_main,menu_exit, menu_settings, menu_system_info;
 MenuItem menu_register,menu_remove,menu_rfid,menu_finger,menu_face;
-uint8_t g_ucOperation;
 
 void Display_Refresh(void) {
     OLED_Clear();
@@ -40,22 +36,22 @@ void Display_Refresh(void) {
 }
 
 void Register_Func(void) {
-    g_ucOperation = OPERATION_REGISTER;
+	g_xMenu_Opera = OPERATION_REGISTER;
 }
 
 void Remove_Func(void) {
-    g_ucOperation = OPERATION_REMOVE;
+    g_xMenu_Opera = OPERATION_REMOVE;
 }
 
 void Settings_Func(void) {
-    g_ucOperation = OPERATION_NONE;
+    g_xMenu_Opera = OPERATION_NONE;
 }
 
-void Operation_Func(void) {
+void Operation_RFID(void) {
     // 实际硬件操作 
-	 OLED_ShowNum(0,24,g_ucOperation,1,OLED_6X8);
+	 OLED_ShowString(0,24,"RFID",OLED_6X8);
 	 OLED_UpdateArea(0,24,128,16);
-	 switch (g_ucOperation){
+	 switch (g_xMenu_Opera){
 		 case OPERATION_REGISTER:
 			OLED_ShowString(0,32,"Plese put card to",OLED_6X8);
 			OLED_ShowString(0,40,"register !",OLED_6X8);
@@ -66,11 +62,49 @@ void Operation_Func(void) {
 			OLED_ShowString(0,40,"remove !",OLED_6X8);
 			vTaskResume(g_xRC522Handle);
 			break;
-		 case OPERATION_NONE:
+		 default:
 			OLED_ShowString(0,32,"Error occured",OLED_6X8);
 			break;
 	 }
-	xTaskNotify(g_xRC522Handle, g_ucOperation, eSetBits);
+	xTaskNotify(g_xRC522Handle, g_xMenu_Opera, eSetBits);
+	OLED_UpdateArea(0,32,128,16);
+}
+
+void Operation_Finger(void) {
+	OLED_ShowString(0,24,"Finger",OLED_6X8);
+	OLED_UpdateArea(0,24,128,16);
+	switch (g_xMenu_Opera){
+		case OPERATION_REGISTER:
+			OLED_ShowString(0,32,"Plese put Finger to",OLED_6X8);
+			OLED_ShowString(0,40,"register !",OLED_6X8);
+			break;
+		case OPERATION_REMOVE:
+			OLED_ShowString(0,32,"Plese put Finger to",OLED_6X8);
+			OLED_ShowString(0,40,"remove !",OLED_6X8);
+			break;
+		default:
+			OLED_ShowString(0,32,"Error occured",OLED_6X8);
+			break;
+	}
+	OLED_UpdateArea(0,32,128,16);
+}
+
+void Operation_Face(void) {
+	OLED_ShowString(0,24,"Face",OLED_6X8);
+	OLED_UpdateArea(0,24,128,16);
+	switch (g_xMenu_Opera){
+		case OPERATION_REGISTER:
+			OLED_ShowString(0,32,"Plese put Face to",OLED_6X8);
+			OLED_ShowString(0,40,"register !",OLED_6X8);
+			break;
+		case OPERATION_REMOVE:
+			OLED_ShowString(0,32,"Plese put Face to",OLED_6X8);
+			OLED_ShowString(0,40,"remove !",OLED_6X8);
+			break;
+		default:
+			OLED_ShowString(0,32,"Error occured",OLED_6X8);
+			break;
+	}
 	OLED_UpdateArea(0,32,128,16);
 }
 
@@ -125,20 +159,20 @@ void Menu_Init(void) {
 	 menu_rfid.name = "RFID Card";
     menu_rfid.parent = &menu_register;
     menu_rfid.child = NULL;
-    menu_rfid.func = Operation_Func;
+    menu_rfid.func = Operation_RFID;
 	 menu_rfid.next = &menu_finger;
 	 
 	 menu_finger.name = "Finger Print";
     menu_finger.parent = &menu_register;
     menu_finger.child = NULL;
-    menu_finger.func = Operation_Func;
+    menu_finger.func = Operation_Finger;
 	 menu_finger.next = &menu_face;
 	 menu_finger.prev = &menu_rfid;
 	 
 	 menu_face.name = "Face";
     menu_face.parent = &menu_register;
 	 menu_face.prev = &menu_finger;
-	 menu_face.func = Operation_Func;
+	 menu_face.func = Operation_Face;
 	 
     // 系统信息
     menu_system_info.name = "System Info";

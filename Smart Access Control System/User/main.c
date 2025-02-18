@@ -15,7 +15,7 @@
 #include "typedef.h"
 #include "rfid.h"
 #include "menu.h"
-#include "driver_as608.h"
+#include "finger.h"
 
 #define MENU_MAIN_LENGTH 3
 
@@ -28,25 +28,47 @@ extern QueueHandle_t xQueueUart2;
 
 void AS608Task(void *p){
 	as608_status_t as608_status;
-	uint8_t status = 0;;
+	uint8_t status = 0;
 
 	while(1){
-		while( !status )
-		{
-			if(PS_GetImage(&as608_status)){
+		status = KeyNum_Get();
+		if(status){
+			uint8_t state = Finger_Flush(&as608_status,NULL,NULL);
+			if( state == FLUSH_FINGER_SUCCESS ){				
+				OLED_ShowImage(48,16,32,32,Unlock32x32);
+				OLED_Update();
+				status = 0;
+			}else if(state == 0){
+				AS608_SendCommand(0x01,2,0x01,NULL);
+				OLED_ShowString(0,0,"Receive outtime",OLED_8X16);
+				OLED_Update();	
+				status = 0;
+			}else{
 				OLED_ShowHexNum(0,0,as608_status,2,OLED_8X16);
 				OLED_Update();	
-				status = 1;
+				status = 0;
 			}
-
+//			Finger_Remove();
+//			uint8_t state = Finger_Register(&as608_status,2);
+//			if(state == 0){
+//				AS608_SendCommand(0x01,2,0x01,NULL);
+//				OLED_ShowString(0,0,"Receive outtime",OLED_8X16);
+//				OLED_Update();	
+//				status = 0;
+//			}else if(state != REG_FINGER_SUCCESS){
+//				OLED_ShowHexNum(0,0,as608_status,2,OLED_8X16);
+//				OLED_Update();	
+//				status = 0;
+//			}
+			
 		}
-	
 	}
 
 }
 
 void MenuTask(void *p){
-
+	OLED_ShowImage(48,16,32,32,Lock32x32);
+	OLED_Update();
 	while(1){
 		
 		if(xTaskNotifyWait(0, 0x01, NULL, 0) == pdPASS){
@@ -63,7 +85,10 @@ void MenuTask(void *p){
 			if(key != KEY_NONE)	Key_Handler(key);
 
 		   vTaskDelay(pdMS_TO_TICKS(10));
+		}else{
+			
 		}
+		
 		vTaskDelay(pdMS_TO_TICKS(100)); // 非激活状态时降低检测频
 	}
 	
@@ -113,12 +138,9 @@ void RC522Task(void *p){
 		if(ucStatus){
 			RFID_ReadBlock(7);
 			RFID_ReadBlock(6);
-			OLED_ShowString(0,0,"Pass Allowed",OLED_8X16);
-			OLED_ShowString(0,16,"RFID",OLED_8X16);
-			OLED_UpdateArea(0,0,128,32);
+			OLED_ShowImage(48,16,32,32,Unlock32x32);
+			OLED_Update();
 			vTaskDelay(pdMS_TO_TICKS(1000));
-			OLED_ClearArea(0,0,128,32);
-			OLED_UpdateArea(0,0,128,32);
 			ucFlag_admin = 1;
 		}
 		vTaskDelay(pdMS_TO_TICKS(100)); // 非激活状态时降低检测频
@@ -135,9 +157,9 @@ int main(void)
 	
 	KeyScanTimer_Create();
 	
-//	xTaskCreate(MenuTask, "Menu", 128, NULL, 60, &g_xMenuHandle);
-//	xTaskCreate(RC522Task, "RC522", 128, NULL, 64, &g_xRC522Handle);
-	xTaskCreate(AS608Task, "AS608", 128, NULL, 64, &g_xRC522Handle);
+	xTaskCreate(MenuTask, "Menu", 128, NULL, 60, &g_xMenuHandle);
+	xTaskCreate(RC522Task, "RC522", 128, NULL, 64, &g_xRC522Handle);
+	xTaskCreate(AS608Task, "AS608", 128, NULL, 65, &g_xRC522Handle);
 	
    vTaskStartScheduler();
 }

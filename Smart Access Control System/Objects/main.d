@@ -51,5 +51,6 @@
 .\objects\main.o: User\typedef.h
 .\objects\main.o: User\rfid.h
 .\objects\main.o: User\menu.h
+.\objects\main.o: User\finger.h
 .\objects\main.o: .\Hardware\driver_as608.h
 .\objects\main.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\string.h

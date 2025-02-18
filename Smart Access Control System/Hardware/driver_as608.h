@@ -64,6 +64,24 @@ typedef struct {
 } As608_PacketInfo_t;
 #pragma pack()
 
+typedef enum {
+	FLUSH_FINGER_SUCCESS = 1,
+	FLUSH_FINGER_SEARCH_FAILED,
+	FLUSH_FINGER_GEN_CHAR_FAILED,
+	FLUSH_FINGER_GET_IMAGE_FAILED,
+	FLUSH_FINGER_REG_MODEL_FAILED,
+	FLUSH_FINGER_STORE_CHAR_FAILED
+} FlushFingerError_t;
+
+typedef enum {
+	REG_FINGER_SUCCESS = 1,
+	REG_FINGER_SEARCH_FAILED,
+	REG_FINGER_GEN_CHAR_FAILED,
+	REG_FINGER_GET_IMAGE_FAILED,
+	REG_FINGER_REG_MODEL_FAILED,
+	REG_FINGER_STORE_CHAR_FAILED
+} RegFingerError_t;
+
 typedef enum
 {
     AS608_BOOL_FALSE = 0x00,        /**< disable */
@@ -184,6 +202,13 @@ typedef struct as608_params_s
 #endif
 
 void AS608_Init(void);
-uint8_t AS608_Read(void);
+uint8_t AS608_Read(uint16_t delay_ms);
 uint8_t AS608_SendCommand(uint8_t Identifier,uint16_t Packet_Length,uint8_t Command,uint8_t* Params);
 uint8_t PS_GetImage(as608_status_t* status);
+uint8_t PS_GenChar(as608_status_t* status,as608_buffer_number_t buffer_number);
+uint8_t PS_Search(as608_status_t* Status,uint16_t* Page_id ,uint16_t* Match_score ,as608_buffer_number_t Buffer_id,uint16_t StartPage,uint16_t PageNum);
+uint8_t PS_RegModel(as608_status_t* Status);
+uint8_t PS_StoreChar(as608_status_t* Status,as608_buffer_number_t Buffer_id,uint16_t Page_id);
+uint8_t PS_DeletChar(as608_status_t* Status,uint16_t Page_id,uint16_t Count);
+uint8_t PS_Empty(as608_status_t* Status);
+

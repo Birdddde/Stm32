@@ -18,6 +18,13 @@ typedef enum {
     MENU_ACTIVE,
     MENU_INACTIVE
 } MenuState_t;
+
+typedef enum {
+	OPERATION_NONE = 0,
+	OPERATION_REGISTER,
+	OPERATION_REMOVE
+} Menu_Operation_t;
+
 /*
 	AS608串口结构体
 */	
