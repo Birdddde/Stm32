@@ -2,6 +2,13 @@
 #include "finger.h"
 #include "oled.h"
 
+void Finger_Init(void){
+	AS608_Init();
+}
+uint8_t PS_StaIO(void){
+	return GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_12);
+}
+
 uint8_t Finger_Flush(as608_status_t* as608_status,uint16_t * Page_id,uint16_t * Match_score){
 	as608_status_t status;
 			
@@ -83,57 +90,55 @@ uint8_t Finger_Remove(void){
 	
 	switch( fun_state ){
 		case 0:
-			OLED_ShowString(0,0,"Overtime",OLED_6X8);
-			OLED_UpdateArea(0,0,128,16);
+			OLED_ShowString(0,32,"Overtime",OLED_6X8);
+			OLED_UpdateArea(0,32,128,16);
 			break;
 		case FLUSH_FINGER_SUCCESS:
-			OLED_ShowString(0,0,"Finger Matched",OLED_6X8);
-			OLED_ShowString(0,8,"Page:",OLED_6X8);
-			OLED_ShowString(9*6,8,"Score:",OLED_6X8);		
-			OLED_ShowNum(6*6,8,Page_id,2,OLED_6X8);
-			OLED_ShowNum(15*6,8,Match_score,2,OLED_6X8);
-			OLED_UpdateArea(0,0,128,16);
+			OLED_ShowString(0,32,"Finger Matched",OLED_6X8);
+			OLED_ShowString(0,40,"ID:",OLED_6X8);	
+			OLED_ShowNum(5*6,40,Page_id,2,OLED_6X8);
+			OLED_UpdateArea(0,32,128,16);
 		
 			if( !PS_DeletChar(&status,Page_id,1) ){
-				OLED_ShowString(0,0,"Overtime",OLED_6X8);
-				OLED_UpdateArea(0,0,128,16);
+				OLED_ShowString(0,32,"Overtime",OLED_6X8);
+				OLED_UpdateArea(0,32,128,16);
 			}			
 			if(status != AS608_STATUS_OK){
-				OLED_ShowString(0,0,"Delete Failed",OLED_6X8);
-				OLED_UpdateArea(0,0,128,16);
+				OLED_ShowString(0,32,"Delete Failed",OLED_6X8);
+				OLED_UpdateArea(0,32,128,16);
 			}else{
-				OLED_ShowString(0,0,"Remove Finished",OLED_6X8);
-				OLED_UpdateArea(0,0,128,16);
+				OLED_ShowString(0,32,"Remove Finished",OLED_6X8);
+				OLED_UpdateArea(0,32,128,16);
 				return 1;			//success
 			}			
 			break;
 		case FLUSH_FINGER_GET_IMAGE_FAILED:
 			if(status == AS608_STATUS_NO_FINGERPRINT){
-				OLED_ShowString(0,0,"NO FINGERPRINT",OLED_6X8);
-				OLED_UpdateArea(0,0,128,16);
+				OLED_ShowString(0,32,"NO FINGERPRINT",OLED_6X8);
+				OLED_UpdateArea(0,32,128,16);
 			}else{			
-				OLED_ShowString(0,0,"GET IMAGE FAILED",OLED_6X8);
-				OLED_ShowString(0,16,"erro code:",OLED_6X8);
-				OLED_ShowNum(6*11,16,status,2,OLED_6X8);
-				OLED_UpdateArea(0,0,128,32);
+				OLED_ShowString(0,32,"GET IMAGE FAILED",OLED_6X8);
+				OLED_ShowString(0,40,"erro code:",OLED_6X8);
+				OLED_ShowNum(6*11,40,status,2,OLED_6X8);
+				OLED_UpdateArea(0,32,128,16);
 			}
 			break;
 		case FLUSH_FINGER_GEN_CHAR_FAILED:
-			OLED_ShowString(0,0,"GEN CHAR FAILED",OLED_6X8);
-			OLED_ShowString(0,16,"erro code:",OLED_6X8);
-			OLED_ShowNum(11,16,status,2,OLED_6X8);
-			OLED_UpdateArea(0,0,128,32);
+			OLED_ShowString(0,32,"GEN CHAR FAILED",OLED_6X8);
+			OLED_ShowString(0,40,"erro code:",OLED_6X8);
+			OLED_ShowNum(6*11,40,status,2,OLED_6X8);
+			OLED_UpdateArea(0,32,128,16);
 			break;
 
 		case FLUSH_FINGER_SEARCH_FAILED:
 			if(status == AS608_STATUS_NOT_FOUND){
-				OLED_ShowString(0,0,"Finger not found",OLED_6X8);
-				OLED_UpdateArea(0,0,128,16);
+				OLED_ShowString(0,32,"Finger not found",OLED_6X8);
+				OLED_UpdateArea(0,32,128,16);
 			}else{
-				OLED_ShowString(0,0,"SEARCH FAILED",OLED_6X8);
-				OLED_ShowString(0,16,"erro code:",OLED_6X8);
-				OLED_ShowNum(11,16,status,2,OLED_6X8);
-				OLED_UpdateArea(0,0,128,32);
+				OLED_ShowString(0,32,"SEARCH FAILED",OLED_6X8);
+				OLED_ShowString(0,40,"erro code:",OLED_6X8);
+				OLED_ShowNum(6*11,40,status,2,OLED_6X8);
+				OLED_UpdateArea(0,32,128,16);
 			}
 			break;
 	}

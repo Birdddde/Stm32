@@ -26,9 +26,7 @@ void PS_StaGPIO_Init(void){
 	GPIO_ResetBits(GPIOB,GPIO_Pin_12);
 }
 
-uint8_t PS_StaIO(void){
-	return GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_12);
-}
+
 
 void AS608_Init(void) {
 	 Serial2_Init();
@@ -100,7 +98,7 @@ uint8_t PS_GetImage(as608_status_t* Status){
 	uint16_t buffer_length = 0x0003;	
 	
 	AS608_SendCommand(AS608_TYPE_COMMAND,buffer_length,AS608_COMMAND_GET_IMAGE,NULL);
-	
+
 	if(AS608_Read(1500)){
 		*Status =(as608_status_t)As608_Packet->ConfirmCode;
 		return 1;	//Receive sucessed

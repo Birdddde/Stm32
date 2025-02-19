@@ -1,12 +1,16 @@
 #include "stm32f10x.h"                  // Device header
+#include <stdio.h>
 #include "key.h"
 #include "delay.h"
 #include "oled.h"
 #include "typedef.h"
 #include "freertos.h"
 
-extern TaskHandle_t g_xRC522Handle,g_xMenuHandle;
+extern TaskHandle_t g_xRC522Handle,g_xMenuHandle,g_xAs608Handle;
 extern volatile MenuState_t menuState;
+extern uint8_t Admin_pass[4];
+
+void Pass_handlle(uint8_t* Password,Menu_Pass_Action_t Action);
 
 MenuItem* current_menu = NULL;  // 当前选中菜单
 MenuItem* menu_root = NULL;     // 根菜单
@@ -14,12 +18,14 @@ Menu_Operation_t g_xMenu_Opera;
 uint8_t display_offset = 0;     
 
 // 声明所有菜单项（静态分配）
-MenuItem menu_main,menu_exit, menu_settings, menu_system_info;
+MenuItem menu_main,menu_exit, menu_settings, menu_system_info,menu_pass_set;
 MenuItem menu_register,menu_remove,menu_rfid,menu_finger,menu_face;
 
 void Display_Refresh(void) {
     OLED_Clear();
-    
+	 OLED_ShowString(0,48,"<1>up       <2>down",OLED_6X8);
+	 OLED_ShowString(0,56,"<3>confirm  <4>back",OLED_6X8);
+
     MenuItem* p = current_menu->parent ? current_menu->parent->child : menu_root;
     
     // 显示同级菜单项（最多显示4项）
@@ -32,7 +38,7 @@ void Display_Refresh(void) {
         }
     }
 	 
-    OLED_UpdateArea(0,0,128,32);
+    OLED_Update();
 }
 
 void Register_Func(void) {
@@ -77,16 +83,20 @@ void Operation_Finger(void) {
 		case OPERATION_REGISTER:
 			OLED_ShowString(0,32,"Plese put Finger to",OLED_6X8);
 			OLED_ShowString(0,40,"register !",OLED_6X8);
+			vTaskResume(g_xAs608Handle);
 			break;
 		case OPERATION_REMOVE:
 			OLED_ShowString(0,32,"Plese put Finger to",OLED_6X8);
 			OLED_ShowString(0,40,"remove !",OLED_6X8);
+			vTaskResume(g_xAs608Handle);
 			break;
 		default:
 			OLED_ShowString(0,32,"Error occured",OLED_6X8);
 			break;
 	}
 	OLED_UpdateArea(0,32,128,16);
+	xTaskNotify(g_xAs608Handle, g_xMenu_Opera, eSetBits);
+	vTaskDelay( pdMS_TO_TICKS(2000) );
 }
 
 void Operation_Face(void) {
@@ -115,7 +125,12 @@ void Exit_Func(void) {
 	
 	 menuState = MENU_INACTIVE;
 	 vTaskResume(g_xRC522Handle);
+	 vTaskResume(g_xAs608Handle);
 	
+}
+
+void Pass_Func(){
+	Pass_handlle(Admin_pass,Action_SET);
 }
 
 void Show_SystemInfo(void) {
@@ -154,7 +169,15 @@ void Menu_Init(void) {
     menu_remove.parent = &menu_settings;
     menu_remove.child = &menu_rfid;
     menu_remove.func = Remove_Func;
+	 menu_remove.next = &menu_pass_set;
 	 menu_remove.prev = &menu_register;
+	 
+	 menu_pass_set.name = "Set admin password";
+	 menu_pass_set.parent = &menu_settings;
+	 menu_pass_set.child = NULL;
+	 menu_pass_set.func = Pass_Func;
+	 menu_pass_set.prev = &menu_remove;
+	 
 	 // 设置子菜单	 
 	 menu_rfid.name = "RFID Card";
     menu_rfid.parent = &menu_register;
@@ -222,4 +245,65 @@ void Key_Handler(uint8_t key) {
     }
 }
 
+void Pass_handlle(uint8_t* Password,Menu_Pass_Action_t Action){
+	uint8_t Pass[4]={0,0,0,0};;
+	uint8_t Pass_index = 0,key=0;
+	
+	OLED_Clear();
+	OLED_ShowString(0,8,"Password:",OLED_8X16);
+	OLED_ShowString(0,64-8,"1:+ 2:- 3:Sel 4:OK",OLED_6X8);
+	OLED_Update();
+	
+	while(key != 4){
+		key = KeyNum_Get();
+		if( key == 1 ){					
+			Pass[Pass_index]++;
+			Pass[Pass_index] %= 10;					
+		}
+		if( key == 2 ){	
+			if(Pass[Pass_index] == 0) Pass[Pass_index]=10;
+			Pass[Pass_index]--;	
+			Pass[Pass_index] %= 10;																					
+		}
+		if( key == 3 ){	
+			Pass_index ++;
+			Pass_index %= 4;
+		}
+		
+		OLED_Clear();
+		OLED_ShowString(Pass_index*10+40,33,"_",OLED_8X16);
+		OLED_ShowNum(40,32,Pass[0],1,OLED_8X16);
+		OLED_ShowNum(50,32,Pass[1],1,OLED_8X16);
+		OLED_ShowNum(60,32,Pass[2],1,OLED_8X16);
+		OLED_ShowNum(70,32,Pass[3],1,OLED_8X16);
+		OLED_UpdateArea(40,32,128,17);					
+	}
+	if(Action == Action_COMAPRE){
+		if( Pass[0] == Password[0] && Pass[1] == Password[1] && Pass[2] == Password[2] && Pass[3] == Password[3] ){
+			OLED_Clear();
+			OLED_ShowString(0,0,"Pass correct",OLED_6X8);
+			OLED_Update();
+			vTaskDelay(pdMS_TO_TICKS(1000));
+			xTaskNotify(g_xMenuHandle, 0x01, eSetBits);
+		}else{
+			OLED_Clear();
+			OLED_ShowString(0,0,"Pass incorrect",OLED_6X8);
+			OLED_Update();
+			vTaskDelay(pdMS_TO_TICKS(1000));
+		}	
+	}
+	if(Action == Action_SET){
+		Password[0] = Pass[0];
+		Password[1] = Pass[1];
+		Password[2] = Pass[2];
+		Password[3] = Pass[3];	
+		OLED_Clear();
+		OLED_ShowString(0,0,"Pass set accessed",OLED_6X8);
+		OLED_Update();
+		vTaskDelay(pdMS_TO_TICKS(1000));
+		Display_Refresh();
+	}
+
+	 OLED_Clear();	
+}
 

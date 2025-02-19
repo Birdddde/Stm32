@@ -211,4 +211,3 @@ uint8_t PS_RegModel(as608_status_t* Status);
 uint8_t PS_StoreChar(as608_status_t* Status,as608_buffer_number_t Buffer_id,uint16_t Page_id);
 uint8_t PS_DeletChar(as608_status_t* Status,uint16_t Page_id,uint16_t Count);
 uint8_t PS_Empty(as608_status_t* Status);
-

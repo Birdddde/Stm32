@@ -28,6 +28,7 @@
 .\objects\menu.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h
 .\objects\menu.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_wwdg.h
 .\objects\menu.o: .\Stm32F10x_StdPeriph_Driver\inc\misc.h
+.\objects\menu.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\menu.o: .\Hardware\key.h
 .\objects\menu.o: .\RTOS\inc\freertos.h
 .\objects\menu.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stddef.h

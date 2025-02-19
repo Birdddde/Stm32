@@ -25,6 +25,11 @@ typedef enum {
 	OPERATION_REMOVE
 } Menu_Operation_t;
 
+typedef enum {
+	Action_NONE = 0,
+	Action_COMAPRE,
+	Action_SET
+} Menu_Pass_Action_t;
 /*
 	AS608串口结构体
 */	

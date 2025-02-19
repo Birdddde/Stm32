@@ -21,72 +21,111 @@
 
 TaskHandle_t g_xRC522Handle = NULL;
 TaskHandle_t g_xMenuHandle = NULL;
+TaskHandle_t g_xAs608Handle = NULL;
 
 volatile MenuState_t menuState = MENU_INACTIVE;
 extern QueueHandle_t xQueueUart2;
-
+uint8_t Admin_pass[4] = {0x00,0x00,0x00,0x00};
+uint16_t Page_id=0;
 
 void AS608Task(void *p){
 	as608_status_t as608_status;
 	uint8_t status = 0;
-
+	uint32_t ulNotificationValue;
+	
 	while(1){
-		status = KeyNum_Get();
-		if(status){
-			uint8_t state = Finger_Flush(&as608_status,NULL,NULL);
-			if( state == FLUSH_FINGER_SUCCESS ){				
-				OLED_ShowImage(48,16,32,32,Unlock32x32);
-				OLED_Update();
-				status = 0;
-			}else if(state == 0){
-				AS608_SendCommand(0x01,2,0x01,NULL);
-				OLED_ShowString(0,0,"Receive outtime",OLED_8X16);
-				OLED_Update();	
-				status = 0;
-			}else{
-				OLED_ShowHexNum(0,0,as608_status,2,OLED_8X16);
-				OLED_Update();	
-				status = 0;
+		if(xTaskNotifyWait(0, 0x03, &ulNotificationValue, 0) == pdPASS) {
+			OLED_ClearArea(0,24,128,24);
+			OLED_ShowString(0,32,"Registering...",OLED_6X8);
+			OLED_UpdateArea(0,24,128,24);
+			if(ulNotificationValue & 0x01){
+				if(Page_id >300){
+					OLED_ClearArea(0,24,128,24);
+					OLED_ShowString(0,32,"Finger data is full",OLED_6X8);
+					OLED_UpdateArea(0,24,128,24);
+					vTaskDelay(2000);
+					OLED_ClearArea(0,24,128,24);
+					OLED_UpdateArea(0,24,128,24);
+				}else{
+					status = Finger_Register(&as608_status,Page_id++);
+
+					if( status == REG_FINGER_SUCCESS ){
+						OLED_ClearArea(0,24,128,24);
+						OLED_ShowString(0,32,"Register success !",OLED_6X8);
+						OLED_UpdateArea(0,24,128,24);
+						vTaskDelay(2000);
+						OLED_ClearArea(0,24,128,24);
+						OLED_UpdateArea(0,24,128,24);
+					}else{
+						OLED_ClearArea(0,24,128,24);
+						OLED_ShowString(0,32,"Register failed !",OLED_6X8);
+						OLED_UpdateArea(0,24,128,24);
+						vTaskDelay(2000);
+						OLED_ClearArea(0,24,128,24);
+						OLED_UpdateArea(0,24,128,24);
+					}
+				}
+				
+				vTaskSuspend(NULL);
 			}
-//			Finger_Remove();
-//			uint8_t state = Finger_Register(&as608_status,2);
-//			if(state == 0){
-//				AS608_SendCommand(0x01,2,0x01,NULL);
-//				OLED_ShowString(0,0,"Receive outtime",OLED_8X16);
-//				OLED_Update();	
-//				status = 0;
-//			}else if(state != REG_FINGER_SUCCESS){
-//				OLED_ShowHexNum(0,0,as608_status,2,OLED_8X16);
-//				OLED_Update();	
-//				status = 0;
-//			}
 			
+			if(ulNotificationValue & 0x02){
+				status = Finger_Remove();
+
+				vTaskSuspend(NULL);
+			}
 		}
+				
+		if(PS_StaIO()){			
+			status = Finger_Flush(&as608_status,NULL,NULL);					
+			if( status == FLUSH_FINGER_SUCCESS ){				
+				xTaskNotify(g_xMenuHandle,0x02,eSetBits);
+			}
+		}
+	
 	}
 
 }
 
 void MenuTask(void *p){
-	OLED_ShowImage(48,16,32,32,Lock32x32);
-	OLED_Update();
+	uint8_t key;
+
+	uint32_t ulNotificationValue;
+	uint8_t Flag_Access = 0;
+	
 	while(1){
 		
-		if(xTaskNotifyWait(0, 0x01, NULL, 0) == pdPASS){
-			 Menu_Init();
-			 menuState = MENU_ACTIVE;
-			 Display_Refresh();
-			 OLED_ShowString(0,48,"<1>up       <2>down",OLED_6X8);
-			 OLED_ShowString(0,56,"<3>confirm  <4>back",OLED_6X8);
-			 OLED_Update();
-		}		
+		if(xTaskNotifyWait(0, 0x03, &ulNotificationValue, 0) == pdPASS) {
+			if(ulNotificationValue & 0x01){
+				vTaskSuspend(g_xRC522Handle);	//暂停任务
+				vTaskSuspend(g_xAs608Handle);
+				Menu_Init();
+				menuState = MENU_ACTIVE;
+				Display_Refresh();
+			}
+			if(ulNotificationValue & 0x02){
+				Flag_Access = 1;
+			}
+		}
+		
 		
 		if(menuState == MENU_ACTIVE){
-			uint8_t key = KeyNum_Get();
+			key = KeyNum_Get();
 			if(key != KEY_NONE)	Key_Handler(key);
 
 		   vTaskDelay(pdMS_TO_TICKS(10));
 		}else{
+			if(Flag_Access){
+				OLED_ShowImage(48,16,32,32,Unlock32x32);
+			}else{
+				OLED_ShowImage(48,16,32,32,Lock32x32);
+			}			
+			OLED_UpdateArea(48,16,32,32);
 			
+			key = KeyNum_Get();
+			if(key){	
+				Pass_handlle(Admin_pass,Action_COMAPRE);
+			}
 		}
 		
 		vTaskDelay(pdMS_TO_TICKS(100)); // 非激活状态时降低检测频
@@ -96,52 +135,59 @@ void MenuTask(void *p){
 
 void RC522Task(void *p){
 	
-	uint8_t ucStatus,ucCur_key,ucFlag_admin = 0;
+	uint8_t ucStatus;
 	uint32_t ulNotificationValue;
 	
 	while(1){
-		
-		ucCur_key = KeyNum_Get();
+
 		ucStatus = RFID_Scan();
 		
-		if(ucCur_key == 3 && ucFlag_admin) {
-			if(menuState == MENU_INACTIVE){
-				 ucFlag_admin = 0;
-				 xTaskNotify(g_xMenuHandle, 0x01, eSetBits);
+		if(xTaskNotifyWait(0, 0x03, &ulNotificationValue, 0) == pdPASS) {
+			if (ulNotificationValue & 0x01) {
+				
+				 while( 1 ){
+					if (KeyNum_Get() == 4) {	
+						break;
+					}
+					if( RFID_Register() ){
+						OLED_ClearArea(0,24,128,24);
+						OLED_ShowString(0,32,"Register success !",OLED_6X8);
+						OLED_UpdateArea(0,24,128,24);
+						vTaskDelay(2000);
+						OLED_ClearArea(0,24,128,24);
+						OLED_UpdateArea(0,24,128,24);
+						break;
+					}
+						
+				 }
 				 vTaskSuspend(NULL);
 			}
-		}
+			if (ulNotificationValue & 0x02) {
 
-		if(xTaskNotifyWait(0, 0x03, &ulNotificationValue, 0) == pdPASS) {
-            if (ulNotificationValue & 0x01) {
-                printf("Register");
-                while( !RFID_Register() ){
-						if (KeyNum_Get() == 4) {
-							printf("Exit");
-							break;
-						}
-					 }
-                vTaskSuspend(NULL);
-            }
-            if (ulNotificationValue & 0x02) {
-                printf("Remove");
-                while( !RFID_Remove() ){
-						if (KeyNum_Get() == 4) {
-							printf("Exit");
-							break;
-						}
-					 }
-                vTaskSuspend(NULL);
-            }
+				 while( 1 ){
+					if (KeyNum_Get() == 4) {
+						printf("Exit");
+						break;
+					}						
+					if( RFID_Remove() ){
+						OLED_ClearArea(0,24,128,24);
+						OLED_ShowString(0,32,"Remove success !",OLED_6X8);
+						OLED_UpdateArea(0,24,128,24);
+						vTaskDelay(2000);
+						OLED_ClearArea(0,24,128,24);
+						OLED_UpdateArea(0,24,128,24);
+						break;
+					}
+				 }
+				 vTaskSuspend(NULL);
+			}
       }	
 		
 		if(ucStatus){
 			RFID_ReadBlock(7);
 			RFID_ReadBlock(6);
-			OLED_ShowImage(48,16,32,32,Unlock32x32);
-			OLED_Update();
+			xTaskNotify(g_xMenuHandle,0x02,eSetBits);
 			vTaskDelay(pdMS_TO_TICKS(1000));
-			ucFlag_admin = 1;
 		}
 		vTaskDelay(pdMS_TO_TICKS(100)); // 非激活状态时降低检测频
 	}
@@ -153,13 +199,13 @@ int main(void)
 	OLED_Init();
 	RFID_Init();
    Key_Init();  
-	AS608_Init();
+	Finger_Init();
 	
 	KeyScanTimer_Create();
-	
+
 	xTaskCreate(MenuTask, "Menu", 128, NULL, 60, &g_xMenuHandle);
 	xTaskCreate(RC522Task, "RC522", 128, NULL, 64, &g_xRC522Handle);
-	xTaskCreate(AS608Task, "AS608", 128, NULL, 65, &g_xRC522Handle);
+	xTaskCreate(AS608Task, "AS608", 128, NULL, 65, &g_xAs608Handle);
 	
    vTaskStartScheduler();
 }
