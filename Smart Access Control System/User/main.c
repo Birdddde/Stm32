@@ -4,7 +4,6 @@
 #include "freertos.h"
 #include "task.h"
 #include "queue.h"
-#include "timers.h"
 #include "semphr.h"  
 
 #include "oled.h"
@@ -12,16 +11,22 @@
 #include "uart1.h"
 #include "uart2.h"
 #include "key.h"
+#include "tim.h"
 #include "typedef.h"
 #include "rfid.h"
 #include "menu.h"
 #include "finger.h"
+#include "servo.h"
+#include "beep.h"
+#include "esp01s_wifimoudle.h"
 
 #define MENU_MAIN_LENGTH 3
 
 TaskHandle_t g_xRC522Handle = NULL;
 TaskHandle_t g_xMenuHandle = NULL;
 TaskHandle_t g_xAs608Handle = NULL;
+uint8_t g_ucCode;
+uint8_t g_ucDoor_status = 0;
 
 volatile MenuState_t menuState = MENU_INACTIVE;
 extern QueueHandle_t xQueueUart2;
@@ -80,6 +85,8 @@ void AS608Task(void *p){
 			status = Finger_Flush(&as608_status,NULL,NULL);					
 			if( status == FLUSH_FINGER_SUCCESS ){				
 				xTaskNotify(g_xMenuHandle,0x02,eSetBits);
+			}else{
+				Beep_On(1000);
 			}
 		}
 	
@@ -117,8 +124,14 @@ void MenuTask(void *p){
 		}else{
 			if(Flag_Access){
 				OLED_ShowImage(48,16,32,32,Unlock32x32);
+				Servo_SetAngle(180);
+				g_ucDoor_status = 1;
+				vTaskDelay(pdMS_TO_TICKS(5000));
+				Flag_Access=0;
 			}else{
 				OLED_ShowImage(48,16,32,32,Lock32x32);
+				Servo_SetAngle(0);
+				g_ucDoor_status = 0;
 			}			
 			OLED_UpdateArea(48,16,32,32);
 			
@@ -195,14 +208,19 @@ void RC522Task(void *p){
 
 int main(void)
 {
-	Serial1_Init();
+	Serial1_Init(115200);
 	OLED_Init();
 	RFID_Init();
    Key_Init();  
 	Finger_Init();
+	Beep_Init();
+	Servo_Init();
+		
+	DMA1_Init();
+	Esp01s_ConnectAli(&g_ucCode);
 	
-	KeyScanTimer_Create();
-
+	Timer_Create();
+	
 	xTaskCreate(MenuTask, "Menu", 128, NULL, 60, &g_xMenuHandle);
 	xTaskCreate(RC522Task, "RC522", 128, NULL, 64, &g_xRC522Handle);
 	xTaskCreate(AS608Task, "AS608", 128, NULL, 65, &g_xAs608Handle);

@@ -14,5 +14,6 @@
 	void Key_Init(void);
 	void KeyScanTimer_Create(void);
 	uint8_t KeyNum_Get(void);
+	void vKeyScan(void);
 
 #endif

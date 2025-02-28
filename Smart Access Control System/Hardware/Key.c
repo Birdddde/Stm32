@@ -4,7 +4,7 @@
 
 #define GPIO_READ_PIN(x, y) GPIO_ReadInputDataBit(x, y)
 
-xTimerHandle g_xKeyScanTimer;  // 定时器句柄
+//xTimerHandle g_xKeyScanTimer;  // 定时器句柄
 uint8_t g_ucKeyNum = 0;
 
 /* @note:可使用EXTI让响应更快 */
@@ -48,26 +48,26 @@ void vKeyScan(void)
 	lastState = currentState;  // 更新上次按键状态
 }
 
-// 定时器回调函数
-void vKeyTimerCallback(xTimerHandle pxTimer)
-{
-    vKeyScan();  // 每次定时器回调时扫描按键
-}
+//// 定时器回调函数
+//void vKeyTimerCallback(xTimerHandle pxTimer)
+//{
+//    vKeyScan();  // 每次定时器回调时扫描按键
+//}
 
-// 创建定时器
-void KeyScanTimer_Create(void)
-{
-    const TickType_t xTimerPeriod = pdMS_TO_TICKS(20);  // 定时器周期40ms
+//// 创建定时器
+//void KeyScanTimer_Create(void)
+//{
+//    const TickType_t xTimerPeriod = pdMS_TO_TICKS(20);  // 定时器周期40ms
 
-    g_xKeyScanTimer = xTimerCreate("KeyScanTimer",  // 定时器名称
-                                    xTimerPeriod,    // 定时器周期
-                                    pdTRUE,          // 周期性定时器
-                                    NULL,             // 定时器 ID
-                                    vKeyTimerCallback); // 回调函数
-	 if (g_xKeyScanTimer!= NULL) {
-        xTimerStart(g_xKeyScanTimer, 0);  // 启动定时器
-    }
-}
+//    g_xKeyScanTimer = xTimerCreate("KeyScanTimer",  // 定时器名称
+//                                    xTimerPeriod,    // 定时器周期
+//                                    pdTRUE,          // 周期性定时器
+//                                    NULL,             // 定时器 ID
+//                                    vKeyTimerCallback); // 回调函数
+//	 if (g_xKeyScanTimer!= NULL) {
+//        xTimerStart(g_xKeyScanTimer, 0);  // 启动定时器
+//    }
+//}
 
 uint8_t KeyNum_Get(void)
 {

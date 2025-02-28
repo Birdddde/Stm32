@@ -469,6 +469,26 @@
               <FileType>5</FileType>
               <FilePath>.\Hardware\driver_as608.h</FilePath>
             </File>
+            <File>
+              <FileName>Servo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\Servo.c</FilePath>
+            </File>
+            <File>
+              <FileName>Servo.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\Servo.h</FilePath>
+            </File>
+            <File>
+              <FileName>Beep.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\hardware\Beep.c</FilePath>
+            </File>
+            <File>
+              <FileName>Beep.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\hardware\Beep.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -739,6 +759,26 @@
               <FileType>5</FileType>
               <FilePath>.\System\UART2.h</FilePath>
             </File>
+            <File>
+              <FileName>PWM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\System\PWM.c</FilePath>
+            </File>
+            <File>
+              <FileName>PWM.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\System\PWM.h</FilePath>
+            </File>
+            <File>
+              <FileName>Tim.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\system\Tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>Tim.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\system\Tim.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -798,6 +838,16 @@
               <FileName>Finger.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\User\Finger.c</FilePath>
+            </File>
+            <File>
+              <FileName>ESP01S_WIFIMOUDLE.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\ESP01S_WIFIMOUDLE.c</FilePath>
+            </File>
+            <File>
+              <FileName>ESP01S_WIFIMOUDLE.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\User\ESP01S_WIFIMOUDLE.h</FilePath>
             </File>
           </Files>
         </Group>

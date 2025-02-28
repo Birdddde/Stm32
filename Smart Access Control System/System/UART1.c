@@ -1,58 +1,82 @@
-#include "stm32f10x.h"                  // Device header
 #include "string.h"
 #include "stdio.h"
+#include "uart1.h"
+#include "freertos.h"
+#include "task.h"
 
-/* notice : due to the modification of the printf() function,You must 
-    Enable the option(option for Target):use MicroLib
-*/
+uint8_t rx_buffer[RX_BUFFER_SIZE];      // DMA直接操作的缓冲区
+uint8_t rx_data_ready = 0;              // 数据接收完成标志
+volatile uint16_t rx_data_length = 0;   // 实际接收数据长度
 
-#define RECEIVE_BUFFER_SIZE 50
+//-------------------------------------
+// UART1初始化（含空闲中断配置）
+//-------------------------------------
+void Serial1_Init(uint32_t baudrate) {
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA, ENABLE);
 
-uint8_t g_Serial_RxFlag = 0; // 接收标志位
-uint8_t pRxHead = 0;          // 环形缓冲区读指针
-uint8_t pRxTail = 0;          // 环形缓冲区写指针
-uint8_t Receive[RECEIVE_BUFFER_SIZE]; // 接收缓冲区
+    // GPIO配置
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_9;       // PA9: USART1_TX
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_InitStruct.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-// 计算环形缓冲区中数据的数量
-uint8_t Serial1_GetRxCount(void) {
-    return (pRxTail - pRxHead + RECEIVE_BUFFER_SIZE) % RECEIVE_BUFFER_SIZE;
+    GPIO_InitStruct.GPIO_Pin = GPIO_Pin_10;      // PA10: USART1_RX
+    GPIO_InitStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    // USART1配置
+    USART_InitTypeDef USART_InitStruct;
+    USART_InitStruct.USART_BaudRate = baudrate;
+    USART_InitStruct.USART_WordLength = USART_WordLength_8b;
+    USART_InitStruct.USART_StopBits = USART_StopBits_1;
+    USART_InitStruct.USART_Parity = USART_Parity_No;
+    USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+    USART_InitStruct.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+    USART_Init(USART1, &USART_InitStruct);
+
+    // 启用空闲中断
+    USART_ITConfig(USART1, USART_IT_IDLE, ENABLE);
+    NVIC_EnableIRQ(USART1_IRQn);
+
+    USART_Cmd(USART1, ENABLE);
 }
 
-void Serial1_Init(void)
-{
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA, ENABLE);
-     
-    GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);//PA9TX引脚初始化
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
-    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOA, &GPIO_InitStructure);//PA10RX引脚初始化
-    
-    USART_InitTypeDef USART_InitStructure;
-    USART_InitStructure.USART_BaudRate=115200;    //串口波特率
-    USART_InitStructure.USART_HardwareFlowControl=USART_HardwareFlowControl_None;
-    USART_InitStructure.USART_Mode=USART_Mode_Tx| USART_Mode_Rx;
-    USART_InitStructure.USART_Parity=USART_Parity_No;
-    USART_InitStructure.USART_StopBits=USART_StopBits_1;    //停止位
-    USART_InitStructure.USART_WordLength=USART_WordLength_8b;//数据位
-    USART_Init(USART1,&USART_InitStructure);
-    
-    USART_ITConfig(USART1,USART_IT_RXNE,ENABLE);
-    
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+//-------------------------------------
+// DMA初始化（USART1_RX使用DMA1 Channel5）
+//-------------------------------------
+void DMA1_Init(void) {
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
-    NVIC_InitTypeDef NVIC_InitStructure;
-    NVIC_InitStructure.NVIC_IRQChannel=USART1_IRQn;
-    NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority=1;
-    NVIC_Init(&NVIC_InitStructure);
-    
-    USART_Cmd(USART1,ENABLE);
+    DMA_InitTypeDef DMA_InitStruct;
+    DMA_InitStruct.DMA_PeripheralBaseAddr = (uint32_t)&USART1->DR;
+    DMA_InitStruct.DMA_MemoryBaseAddr = (uint32_t)rx_buffer;
+    DMA_InitStruct.DMA_DIR = DMA_DIR_PeripheralSRC;
+    DMA_InitStruct.DMA_BufferSize = RX_BUFFER_SIZE;
+    DMA_InitStruct.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+    DMA_InitStruct.DMA_MemoryInc = DMA_MemoryInc_Enable;
+    DMA_InitStruct.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    DMA_InitStruct.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+    DMA_InitStruct.DMA_Mode = DMA_Mode_Normal;    // 普通模式
+    DMA_InitStruct.DMA_Priority = DMA_Priority_High;
+    DMA_InitStruct.DMA_M2M = DMA_M2M_Disable;
+    DMA_Init(DMA1_Channel5, &DMA_InitStruct);
+
+    // 关联DMA与UART
+    USART_DMACmd(USART1, USART_DMAReq_Rx, ENABLE);
+    DMA_Cmd(DMA1_Channel5, ENABLE);
+}
+
+uint8_t USART1_GetRxData(Uart_Rx_t* uart_Rx){
+	
+	if(rx_data_ready){
+		rx_data_ready = 0;
+		uart_Rx -> rx_buffer = rx_buffer;
+		uart_Rx -> rx_data_length = rx_data_length;
+		return 1;
+	}
+	
+	return 0;
 }
 
 void Serial1_SendString(char* String)
@@ -66,49 +90,21 @@ void Serial1_SendString(char* String)
         pS++;
     }
 }
+//-------------------------------------
+// USART1中断服务函数（处理空闲中断）
+//-------------------------------------
+void USART1_IRQHandler(void) {
+    if (USART_GetITStatus(USART1, USART_IT_IDLE) != RESET) {
+        USART_ReceiveData(USART1);  // 清除空闲中断标志
 
-// 获取接收标志位并清空缓冲区
-uint8_t Serial1_GetRxFlag(void)
-{
-    if(g_Serial_RxFlag==1)
-    {
-        g_Serial_RxFlag=0;
-        pRxHead = 0;
-        pRxTail = 0;
-        memset(&Receive, 0, sizeof(Receive));    // 清空接收缓冲区
-        return 1;
-    }
-    return 0;
-}
+        // 计算接收数据长度
+        rx_data_length = RX_BUFFER_SIZE - DMA_GetCurrDataCounter(DMA1_Channel5);
+        rx_data_ready = 1;          // 置接收完成标志
 
-// 从环形缓冲区读取数据
-uint8_t Serial1_ReadData(uint8_t *pData) {
-    if (pRxHead != pRxTail) {
-        *pData = Receive[pRxHead];
-        pRxHead = (pRxHead + 1) % RECEIVE_BUFFER_SIZE;
-        return 1;
-    }
-    return 0;
-}
-
-void USART1_IRQHandler(void)
-{
-    if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
-    {
-        uint8_t RxData = USART_ReceiveData(USART1);
-
-        if (!g_Serial_RxFlag) {
-            g_Serial_RxFlag = 1; // 置接收标志位
-        }
-
-        // 计算下一个写入位置
-        uint8_t nextTail = (pRxTail + 1) % RECEIVE_BUFFER_SIZE;
-        if (nextTail != pRxHead) { // 缓冲区未满
-            Receive[pRxTail] = RxData; 
-            pRxTail = nextTail;
-        }
-
-        USART_ClearITPendingBit(USART1, USART_IT_RXNE); // 清除接收中断标志位
+        // 重启DMA传输
+        DMA_Cmd(DMA1_Channel5, DISABLE);
+        DMA_SetCurrDataCounter(DMA1_Channel5, RX_BUFFER_SIZE);
+        DMA_Cmd(DMA1_Channel5, ENABLE);
     }
 }
 
