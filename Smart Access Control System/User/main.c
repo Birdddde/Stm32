@@ -25,8 +25,9 @@
 TaskHandle_t g_xRC522Handle = NULL;
 TaskHandle_t g_xMenuHandle = NULL;
 TaskHandle_t g_xAs608Handle = NULL;
-uint8_t g_ucCode;
-uint8_t g_ucDoor_status = 0;
+wifi_error_t g_xError;	//阿里云连接相关
+uint8_t g_ucDoor_status = 0;		//门锁状态标志位
+SemaphoreHandle_t g_xMutex_Wifi ;
 
 volatile MenuState_t menuState = MENU_INACTIVE;
 extern QueueHandle_t xQueueUart2;
@@ -76,14 +77,14 @@ void AS608Task(void *p){
 			
 			if(ulNotificationValue & 0x02){
 				status = Finger_Remove();
-
 				vTaskSuspend(NULL);
 			}
 		}
 				
-		if(PS_StaIO()){			
+		if(PS_StaIO()){
 			status = Finger_Flush(&as608_status,NULL,NULL);					
-			if( status == FLUSH_FINGER_SUCCESS ){				
+			if( status == FLUSH_FINGER_SUCCESS ){
+				MQTT_UploadState(g_ucDoor_status);
 				xTaskNotify(g_xMenuHandle,0x02,eSetBits);
 			}else{
 				Beep_On(1000);
@@ -197,8 +198,7 @@ void RC522Task(void *p){
       }	
 		
 		if(ucStatus){
-			RFID_ReadBlock(7);
-			RFID_ReadBlock(6);
+			MQTT_UploadState(g_ucDoor_status);
 			xTaskNotify(g_xMenuHandle,0x02,eSetBits);
 			vTaskDelay(pdMS_TO_TICKS(1000));
 		}
@@ -208,22 +208,44 @@ void RC522Task(void *p){
 
 int main(void)
 {
-	Serial1_Init(115200);
+
 	OLED_Init();
 	RFID_Init();
    Key_Init();  
 	Finger_Init();
 	Beep_Init();
 	Servo_Init();
-		
+	Serial1_Init(115200);		
 	DMA1_Init();
-	Esp01s_ConnectAli(&g_ucCode);
 	
-	Timer_Create();
+	g_xMutex_Wifi= xSemaphoreCreateMutex();	//创建互斥信号量	
+	OLED_ShowString(30-6,32-8,"Connecting",OLED_8X16);
+	OLED_UpdateArea(30-6,32-8,128,16);
 	
-	xTaskCreate(MenuTask, "Menu", 128, NULL, 60, &g_xMenuHandle);
-	xTaskCreate(RC522Task, "RC522", 128, NULL, 64, &g_xRC522Handle);
-	xTaskCreate(AS608Task, "AS608", 128, NULL, 65, &g_xAs608Handle);
+	Esp01s_ConnectAli(&g_xError);
+	OLED_Clear();	//清屏
+	OLED_Update();
 	
+	if (g_xError.error_code)
+	{
+		
+		OLED_ShowString(0,0,"Connect Aliyun failed",OLED_6X8);
+		OLED_ShowString(0,8,"error code:",OLED_6X8);
+		OLED_ShowString(0,16,"error src:",OLED_6X8);
+		OLED_ShowNum(13*6,8,g_xError.error_code,2,OLED_6X8);
+		OLED_ShowNum(13*6,16,g_xError.error_src,2,OLED_6X8);
+		OLED_UpdateArea(0,0,128,24);
+	}else
+	{
+		MQTT_UploadPass(Admin_pass);
+		Timer_Create();
+		xTaskCreate(MenuTask, "Menu", 128, NULL, 60, &g_xMenuHandle);
+		xTaskCreate(RC522Task, "RC522", 128, NULL, 64, &g_xRC522Handle);
+		xTaskCreate(AS608Task, "AS608", 128, NULL, 65, &g_xAs608Handle);
+	}
    vTaskStartScheduler();
+   while (1)//启动成功，将不会执行该处
+   {
+	  
+   }
 }

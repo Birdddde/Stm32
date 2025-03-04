@@ -3,7 +3,7 @@
 #ifndef __UART1_H
 #define __UART1_H
 
-#define RX_BUFFER_SIZE 20
+#define RX_BUFFER_SIZE 128
 
 typedef struct Uart_RX{
 	uint8_t* rx_buffer;      // DMA直接操作的缓冲区

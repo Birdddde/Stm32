@@ -28,3 +28,13 @@
 .\objects\pwm.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h
 .\objects\pwm.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_wwdg.h
 .\objects\pwm.o: .\Stm32F10x_StdPeriph_Driver\inc\misc.h
+.\objects\pwm.o: .\RTOS\inc\freertos.h
+.\objects\pwm.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\pwm.o: .\RTOS\portable\FreeRTOSConfig.h
+.\objects\pwm.o: .\RTOS\inc\projdefs.h
+.\objects\pwm.o: .\RTOS\inc\portable.h
+.\objects\pwm.o: .\RTOS\inc\deprecated_definitions.h
+.\objects\pwm.o: .\RTOS\portable\portmacro.h
+.\objects\pwm.o: .\RTOS\inc\mpu_wrappers.h
+.\objects\pwm.o: .\RTOS\inc\task.h
+.\objects\pwm.o: .\RTOS\inc\list.h

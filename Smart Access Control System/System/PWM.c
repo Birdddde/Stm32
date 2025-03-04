@@ -1,4 +1,6 @@
 #include "stm32f10x.h"                  // Device header
+#include "freertos.h"
+#include "task.h"
 
 void PWM_Init(void)
 {

@@ -45,3 +45,4 @@
 .\objects\menu.o: .\Hardware\oled.h
 .\objects\menu.o: .\Hardware\OLED_Data.h
 .\objects\menu.o: User\typedef.h
+.\objects\menu.o: User\esp01s_wifimoudle.h

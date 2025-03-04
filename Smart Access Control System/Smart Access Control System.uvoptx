@@ -152,9 +152,25 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
+          <LineNumber>28</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>.\User\ESP01S_WIFIMOUDLE.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
           <LineNumber>82</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134224758</Address>
+          <Address>134225786</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -166,11 +182,11 @@
           <Expression>\\Smart_Access_Control_System\User/Menu.c\82</Expression>
         </Bp>
         <Bp>
-          <Number>1</Number>
+          <Number>2</Number>
           <Type>0</Type>
-          <LineNumber>39</LineNumber>
+          <LineNumber>80</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134219606</Address>
+          <Address>134220514</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -179,108 +195,92 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>.\User\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\Smart_Access_Control_System\User/main.c\39</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>79</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>.\User\main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
+          <Expression>\\Smart_Access_Control_System\User/main.c\80</Expression>
         </Bp>
         <Bp>
           <Number>3</Number>
           <Type>0</Type>
-          <LineNumber>40</LineNumber>
+          <LineNumber>41</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
+          <Address>134220180</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
+          <BreakIfRCount>1</BreakIfRCount>
           <Filename>.\User\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression></Expression>
+          <Expression>\\Smart_Access_Control_System\User/main.c\41</Expression>
         </Bp>
         <Bp>
           <Number>4</Number>
           <Type>0</Type>
-          <LineNumber>80</LineNumber>
+          <LineNumber>42</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
+          <Address>134220182</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
+          <BreakIfRCount>1</BreakIfRCount>
           <Filename>.\User\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression></Expression>
+          <Expression>\\Smart_Access_Control_System\User/main.c\42</Expression>
         </Bp>
         <Bp>
           <Number>5</Number>
           <Type>0</Type>
-          <LineNumber>41</LineNumber>
+          <LineNumber>43</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
+          <Address>134220200</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
+          <BreakIfRCount>1</BreakIfRCount>
           <Filename>.\User\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression></Expression>
+          <Expression>\\Smart_Access_Control_System\User/main.c\43</Expression>
         </Bp>
         <Bp>
           <Number>6</Number>
           <Type>0</Type>
-          <LineNumber>81</LineNumber>
+          <LineNumber>44</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
+          <Address>134220212</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
+          <BreakIfRCount>1</BreakIfRCount>
           <Filename>.\User\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression></Expression>
+          <Expression>\\Smart_Access_Control_System\User/main.c\44</Expression>
         </Bp>
         <Bp>
           <Number>7</Number>
           <Type>0</Type>
-          <LineNumber>42</LineNumber>
+          <LineNumber>84</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
+          <Address>134220520</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
+          <BreakIfRCount>1</BreakIfRCount>
           <Filename>.\User\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression></Expression>
+          <Expression>\\Smart_Access_Control_System\User/main.c\84</Expression>
         </Bp>
         <Bp>
           <Number>8</Number>
           <Type>0</Type>
-          <LineNumber>43</LineNumber>
+          <LineNumber>83</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -289,14 +289,14 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>0</BreakIfRCount>
-          <Filename>.\User\main.c</Filename>
+          <Filename>.\User\Menu.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>
         <Bp>
           <Number>9</Number>
           <Type>0</Type>
-          <LineNumber>44</LineNumber>
+          <LineNumber>39</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -312,7 +312,7 @@
         <Bp>
           <Number>10</Number>
           <Type>0</Type>
-          <LineNumber>83</LineNumber>
+          <LineNumber>40</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -328,7 +328,39 @@
         <Bp>
           <Number>11</Number>
           <Type>0</Type>
-          <LineNumber>84</LineNumber>
+          <LineNumber>79</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>.\User\main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>12</Number>
+          <Type>0</Type>
+          <LineNumber>81</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>.\User\main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>13</Number>
+          <Type>0</Type>
+          <LineNumber>83</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -412,7 +444,7 @@
         <periodic>1</periodic>
         <aLwin>1</aLwin>
         <aCover>0</aCover>
-        <aSer1>0</aSer1>
+        <aSer1>1</aSer1>
         <aSer2>0</aSer2>
         <aPa>0</aPa>
         <viewmode>1</viewmode>

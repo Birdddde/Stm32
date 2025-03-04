@@ -1,11 +1,11 @@
 #include "uart1.h"
-#include "delay.h"
 #include "ESP01S_WIFIMOUDLE.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "freertos.h"
 #include "task.h"
+#include "semphr.h"
 
 #define MAX_BUFF_LEN 200 
 
@@ -22,14 +22,30 @@ char* gMQTT_PORT =  "1883";
 char* gMQTT_SUBPATH =  "\"/sys/k1xclk3TfbJ/AccessControl/thing/service/property/set\"";
 char* gMQTT_PUBPATH =  "\"/sys/k1xclk3TfbJ/AccessControl/thing/event/property/post\"";
 
+/*param***********************************************************************************/
 Uart_Rx_t g_xUart1_rx;
-
-
+extern SemaphoreHandle_t g_xMutex_Wifi ;
 /*Functions****************************************************************************************/
 
+void Esp01s_Delay_us(uint32_t xus)
+{
+	SysTick->LOAD = 72 * xus;				//设置定时器重装值
+	SysTick->VAL = 0x00;					//清空当前计数值
+	SysTick->CTRL = 0x00000005;				//设置时钟源为HCLK，启动定时器
+	while(!(SysTick->CTRL & 0x00010000));	//等待计数到0
+	SysTick->CTRL = 0x00000004;				//关闭定时器
+}
+
+void ESP01s_Delay_ms(uint32_t xms){
+	while(xms--)
+	{
+		Esp01s_Delay_us(1000);
+	}	
+}
 
 uint8_t Esp01s_SendCommand(char* Command,uint8_t IsSet,char* Content,char* expected,uint32_t delay_ms,Uart_Rx_t* uart1_rx)
 {	
+	xSemaphoreTake(g_xMutex_Wifi, portMAX_DELAY);
 	if(!IsSet){							// 构建不带参数的 AT 命令
 		Serial1_SendString("AT+");
 		Serial1_SendString(Command);
@@ -42,8 +58,9 @@ uint8_t Esp01s_SendCommand(char* Command,uint8_t IsSet,char* Content,char* expec
 		Serial1_SendString("\r\n");
 	}
 	memset(gEsp01s_tx_buff,0,sizeof(gEsp01s_tx_buff));	    // 清空发送缓冲区
-	
-	Delay_ms(delay_ms);
+	xSemaphoreGive(g_xMutex_Wifi);
+
+	ESP01s_Delay_ms(delay_ms);
 	
 	if( USART1_GetRxData(uart1_rx) ){
 		
@@ -68,7 +85,7 @@ uint8_t Esp01s_SendCommand(char* Command,uint8_t IsSet,char* Content,char* expec
 uint8_t Esp01s_TestAT(void)
 {
 	Serial1_SendString("AT\r\n");
-	Delay_ms(500);
+	ESP01s_Delay_ms(500);
 	if( USART1_GetRxData(&g_xUart1_rx) ){
 		g_xUart1_rx.rx_buffer[g_xUart1_rx.rx_data_length + 1] = '\0';
 		
@@ -123,34 +140,43 @@ uint8_t MQTT_Subscribe(void)
 uint8_t MQTT_UploadState(uint8_t State)
 {
 	snprintf(gEsp01s_tx_buff,MAX_BUFF_LEN, "%s,%s,%s%u%s" ,"0",gMQTT_PUBPATH,"\"{\\\"params\\\":{\\\"LockState\\\":",State,"}}\",1,0");// 字符串拼接为JSON格式报文
-	return Esp01s_SendCommand("MQTTPUB",1,gEsp01s_tx_buff,"OK",1000,&g_xUart1_rx);
+	return Esp01s_SendCommand("MQTTPUB",1,gEsp01s_tx_buff,"OK",0,&g_xUart1_rx);
 }
 
-uint8_t Esp01s_ConnectAli(uint8_t* error){
-	uint8_t error_code;
-	
-	error_code = Esp01s_TestAT();
-	if( error_code != 1){
-		*error = error_code;
-		return 1;
-	};
+uint8_t MQTT_UploadPass(uint8_t* Pass)
+{
+	snprintf(gEsp01s_tx_buff,MAX_BUFF_LEN, "%s,%s,%s%u%u%u%u%s" ,"0",gMQTT_PUBPATH,"\"{\\\"params\\\":{\\\"admin_pass\\\":",Pass[0],Pass[1],Pass[2],Pass[3],"}}\",1,0");// 字符串拼接为JSON格式报文
+	return Esp01s_SendCommand("MQTTPUB",1,gEsp01s_tx_buff,"OK",0,&g_xUart1_rx);
+}
 
+void Esp01s_ConnectAli(wifi_error_t* error){
+	uint8_t error_code;
+//	error_code = Esp01s_TestAT();
+//	if( error_code != 1){
+//		error->error_code = error_code;
+//		error->error_src = 1;
+//		return;
+//	};
+	
 	error_code = Esp01s_SetCWMODE();
 	if( error_code != 1){
-		*error = error_code;
-		return 2;
+		error->error_code = error_code;
+		error->error_src = 2;
+		return;
 	};	
 
 	error_code = Esp01s_SetSNTPServer();	
 	if( error_code != 1){
-		*error = error_code;		
-		return 3;
+		error->error_code = error_code;
+		error->error_src = 3;
+		return;
 	};		
 
 	error_code = Esp01s_ConnectWifi();
 	if( error_code != 1){
-		*error = error_code;
-		return 4;
+		error->error_code = error_code;
+		error->error_src = 4;
+		return;
 	};			
 	
 	error_code = Esp01s_SendCommand("MQTTCONN?",0,NULL,"OK",1500,&g_xUart1_rx);
@@ -160,15 +186,17 @@ uint8_t Esp01s_ConnectAli(uint8_t* error){
 		
 	error_code = Esp01s_ConnectMQTT();
 	if( error_code != 1){
-		*error = error_code;
-		return 5;
+		error->error_code = error_code;
+		error->error_src = 5;
+		return;
 	};			
 	
 	error_code = MQTT_Subscribe();
 	if( error_code != 1){
-		*error = error_code;
-		return 6;
+		error->error_code = error_code;
+		error->error_src = 6;
+		return;
 	};
-	return 0;
+
 }
 

@@ -29,7 +29,6 @@
 .\objects\esp01s_wifimoudle.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h
 .\objects\esp01s_wifimoudle.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_wwdg.h
 .\objects\esp01s_wifimoudle.o: .\Stm32F10x_StdPeriph_Driver\inc\misc.h
-.\objects\esp01s_wifimoudle.o: .\System\delay.h
 .\objects\esp01s_wifimoudle.o: User\ESP01S_WIFIMOUDLE.h
 .\objects\esp01s_wifimoudle.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\esp01s_wifimoudle.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
@@ -44,3 +43,5 @@
 .\objects\esp01s_wifimoudle.o: .\RTOS\inc\mpu_wrappers.h
 .\objects\esp01s_wifimoudle.o: .\RTOS\inc\task.h
 .\objects\esp01s_wifimoudle.o: .\RTOS\inc\list.h
+.\objects\esp01s_wifimoudle.o: .\RTOS\inc\semphr.h
+.\objects\esp01s_wifimoudle.o: .\RTOS\inc\queue.h

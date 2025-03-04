@@ -5,6 +5,7 @@
 #include "oled.h"
 #include "typedef.h"
 #include "freertos.h"
+#include "esp01s_wifimoudle.h"
 
 extern TaskHandle_t g_xRC522Handle,g_xMenuHandle,g_xAs608Handle;
 extern volatile MenuState_t menuState;
@@ -300,6 +301,7 @@ void Pass_handlle(uint8_t* Password,Menu_Pass_Action_t Action){
 		OLED_Clear();
 		OLED_ShowString(0,0,"Pass set accessed",OLED_6X8);
 		OLED_Update();
+		MQTT_UploadPass(Pass);		//上传阿里云
 		vTaskDelay(pdMS_TO_TICKS(1000));
 		Display_Refresh();
 	}

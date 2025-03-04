@@ -51,12 +51,12 @@ void RFID_ReadBlock(uint8_t Block){
   {    printf("PcdRead Block %x failure\r\n",Block);  }
   else
   {
-	  printf("block :%x: ",Block);
-	  for( uint8_t i = 0; i < 16; i++ )
-	  {
-		  printf("%x",ucaBuffer_wr[i]);
-	  }
-	  printf("\r\n");
+//	  printf("block :%x: ",Block);
+//	  for( uint8_t i = 0; i < 16; i++ )
+//	  {
+//		  printf("%x",ucaBuffer_wr[i]);
+//	  }
+//	  printf("\r\n");
   }
 }
 
@@ -65,16 +65,17 @@ uint8_t RFID_Register(void){
 	if( RFID_Test(PICC_AUTHENT1A,7,ucaID,ucaCard_defaultkey) ){					
 
 		if( PcdWrite(7,ucaControlB) != MI_OK ){    			
-			printf("PcdWrite failure\r\n");          
+//			printf("PcdWrite failure\r\n");          
 			return 0;
 		}
-		else{ printf("PcdWrite ControlBlock success\r\n"); }						
+//		else{ printf("PcdWrite ControlBlock success\r\n"); }						
 	  
 		if( PcdWrite(6,ucaVertify) != MI_OK ){    
-			printf("PcdWrite failure\r\n"); 
+//			printf("PcdWrite failure\r\n"); 
 			return 0;
-		}else
-		{ printf("PcdWrite DataBlock success\r\n"); }
+		}
+//		else
+//		{ printf("PcdWrite DataBlock success\r\n"); }
 		 
 		 return 1;
 	}
@@ -98,16 +99,17 @@ uint8_t RFID_Remove(void){
 	if( RFID_Scan() ){					
 
 		if( PcdWrite(7,ucaBuffer_wr) != MI_OK ){    			
-			printf("PcdWrite failure\r\n");          
+//			printf("PcdWrite failure\r\n");          
 			return 0;
 		}
-		else{ printf("PcdWrite ControlBlock success\r\n"); }						
+//		else{ printf("PcdWrite ControlBlock success\r\n"); }						
 	  
 		memset(ucaBuffer_wr,0,sizeof(ucaBuffer_wr));
 		if( PcdWrite(6,ucaBuffer_wr) != MI_OK ){    
-			printf("PcdWrite failure\r\n"); 
+//			printf("PcdWrite failure\r\n"); 
 			return 0;
-		}else{ printf("PcdWrite DataBlock success\r\n"); }
+		}
+//		else{ printf("PcdWrite DataBlock success\r\n"); }
 		 
 		 return 1;
 	}
