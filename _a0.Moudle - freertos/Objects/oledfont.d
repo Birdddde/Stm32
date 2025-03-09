@@ -1,0 +1,32 @@
+.\objects\oledfont.o: Hardware\OLEDFont.c
+.\objects\oledfont.o: .\Startup\stm32f10x.h
+.\objects\oledfont.o: .\Startup\core_cm3.h
+.\objects\oledfont.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\oledfont.o: .\Startup\system_stm32f10x.h
+.\objects\oledfont.o: .\User\stm32f10x_conf.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_adc.h
+.\objects\oledfont.o: .\Startup\stm32f10x.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_bkp.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_can.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_cec.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_crc.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_dac.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_dbgmcu.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_dma.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_exti.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_flash.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_fsmc.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_gpio.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_i2c.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_iwdg.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_pwr.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_rcc.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_rtc.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_sdio.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_spi.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_tim.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_wwdg.h
+.\objects\oledfont.o: .\Stm32F10x_StdPeriph_Driver\inc\misc.h
+.\objects\oledfont.o: Hardware\OLEDFont.h
+.\objects\oledfont.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\String.h

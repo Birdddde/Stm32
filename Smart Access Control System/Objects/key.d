@@ -42,3 +42,5 @@
 .\objects\key.o: .\RTOS\inc\list.h
 .\objects\key.o: Hardware\oled.h
 .\objects\key.o: Hardware\OLED_Data.h
+.\objects\key.o: .\RTOS\inc\semphr.h
+.\objects\key.o: .\RTOS\inc\queue.h

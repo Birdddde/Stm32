@@ -46,6 +46,7 @@
 .\objects\main.o: .\System\delay.h
 .\objects\main.o: .\System\uart1.h
 .\objects\main.o: .\System\uart2.h
+.\objects\main.o: .\System\uart3.h
 .\objects\main.o: .\Hardware\key.h
 .\objects\main.o: .\RTOS\inc\timers.h
 .\objects\main.o: .\System\tim.h

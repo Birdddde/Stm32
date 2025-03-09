@@ -760,6 +760,16 @@
               <FilePath>.\System\UART2.h</FilePath>
             </File>
             <File>
+              <FileName>UART3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\System\UART3.c</FilePath>
+            </File>
+            <File>
+              <FileName>UART3.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\System\UART3.h</FilePath>
+            </File>
+            <File>
               <FileName>PWM.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\System\PWM.c</FilePath>
@@ -778,6 +788,16 @@
               <FileName>Tim.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\system\Tim.h</FilePath>
+            </File>
+            <File>
+              <FileName>Flash.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\System\Flash.h</FilePath>
+            </File>
+            <File>
+              <FileName>Flash.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\System\Flash.c</FilePath>
             </File>
           </Files>
         </Group>

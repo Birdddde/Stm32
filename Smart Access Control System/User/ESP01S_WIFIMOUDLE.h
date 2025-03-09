@@ -19,5 +19,6 @@ uint8_t MQTT_Subscribe(void);
 uint8_t MQTT_UploadNon(uint8_t Non);
 uint8_t MQTT_UploadState(uint8_t State);
 uint8_t MQTT_UploadPass(uint8_t* Pass);
+void ESP01S_Init(void);
 
 #endif

@@ -200,3 +200,8 @@ void Esp01s_ConnectAli(wifi_error_t* error){
 
 }
 
+void ESP01S_Init(void){
+	Serial1_Init(115200);		
+	DMA1_Init();
+}
+
