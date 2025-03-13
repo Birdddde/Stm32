@@ -6,10 +6,12 @@
 #include "typedef.h"
 #include "freertos.h"
 #include "esp01s_wifimoudle.h"
+#include "finger.h"
+#include "rfid.h"
 
 extern TaskHandle_t g_xRC522Handle,g_xMenuHandle,g_xAs608Handle;
 extern volatile MenuState_t menuState;
-extern uint8_t Admin_pass[4];
+extern uint8_t g_ucaAdmin_pass[4];
 
 void Pass_handlle(uint8_t* Password,Menu_Pass_Action_t Action);
 
@@ -56,48 +58,37 @@ void Settings_Func(void) {
 
 void Operation_RFID(void) {
     // 实际硬件操作 
-	 OLED_ShowString(0,24,"RFID",OLED_6X8);
-	 OLED_UpdateArea(0,24,128,16);
 	 switch (g_xMenu_Opera){
 		 case OPERATION_REGISTER:
-			OLED_ShowString(0,32,"Plese put card to",OLED_6X8);
-			OLED_ShowString(0,40,"register !",OLED_6X8);
-			vTaskResume(g_xRC522Handle);
+			RFID_Regis_Handler();
 			break;
 		 case OPERATION_REMOVE:
-			OLED_ShowString(0,32,"Plese put card to",OLED_6X8);
-			OLED_ShowString(0,40,"remove !",OLED_6X8);
-			vTaskResume(g_xRC522Handle);
+			RFID_Remove_Handler();
 			break;
 		 default:
 			OLED_ShowString(0,32,"Error occured",OLED_6X8);
+		   OLED_UpdateArea(0,32,128,16);
 			break;
 	 }
-	xTaskNotify(g_xRC522Handle, g_xMenu_Opera, eSetBits);
-	OLED_UpdateArea(0,32,128,16);
 }
 
 void Operation_Finger(void) {
-	OLED_ShowString(0,24,"Finger",OLED_6X8);
-	OLED_UpdateArea(0,24,128,16);
+
+	NVIC_DisableIRQ(EXTI1_IRQn);	//关闭指纹外部中断
 	switch (g_xMenu_Opera){
 		case OPERATION_REGISTER:
-			OLED_ShowString(0,32,"Plese put Finger to",OLED_6X8);
-			OLED_ShowString(0,40,"register !",OLED_6X8);
-			vTaskResume(g_xAs608Handle);
+			Finger_Regis_Handler();
 			break;
 		case OPERATION_REMOVE:
-			OLED_ShowString(0,32,"Plese put Finger to",OLED_6X8);
-			OLED_ShowString(0,40,"remove !",OLED_6X8);
-			vTaskResume(g_xAs608Handle);
+			Finger_Remove_Handler();
 			break;
 		default:
 			OLED_ShowString(0,32,"Error occured",OLED_6X8);
+			OLED_UpdateArea(0,32,128,16);
 			break;
+		
 	}
-	OLED_UpdateArea(0,32,128,16);
-	xTaskNotify(g_xAs608Handle, g_xMenu_Opera, eSetBits);
-	vTaskDelay( pdMS_TO_TICKS(2000) );
+	NVIC_EnableIRQ(EXTI1_IRQn);
 }
 
 void Operation_Face(void) {
@@ -131,7 +122,7 @@ void Exit_Func(void) {
 }
 
 void Pass_Func(){
-	Pass_handlle(Admin_pass,Action_SET);
+	Pass_handlle(g_ucaAdmin_pass,Action_SET);
 }
 
 void Show_SystemInfo(void) {
@@ -301,7 +292,7 @@ void Pass_handlle(uint8_t* Password,Menu_Pass_Action_t Action){
 		OLED_Clear();
 		OLED_ShowString(0,0,"Pass set accessed",OLED_6X8);
 		OLED_Update();
-		MQTT_UploadPass(Pass);		//上传阿里云
+//		MQTT_UploadPass(Pass);		//上传阿里云
 		vTaskDelay(pdMS_TO_TICKS(1000));
 		Display_Refresh();
 	}

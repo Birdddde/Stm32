@@ -1,12 +1,29 @@
 #include "stm32f10x.h"                  // Device header
 #include "PWM.h"
 
+/**
+  * 函    数：舵机初始化
+  * 参    数：无
+  * 返 回 值：无
+  */
 void Servo_Init(void)
 {
-	PWM_Init();
+	//*舵机周期20ms：1/(72000000/720) * 2000 * 1000 *//
+	PWM_Init(720-1,2000-1);	//初始化舵机的底层PWM
 }
 
-void Servo_SetAngle(float Angle)
+u16 Servo_Angle_To_Pulse(u8 angle)
 {
-	PWM_SetCompare2(Angle / 180 * 2000 + 500);
+    // 0.5ms - 2.5ms对应0° - 180°
+    // 20ms周期，ARR = 1999，PSC = 719
+    // 脉冲宽度范围：50 - 250
+    return (u16)(50 + (200 * angle / 180));
 }
+
+// 控制舵机转动到指定角度
+void Servo_Control_Angle(u8 angle)
+{
+    u16 pulse = Servo_Angle_To_Pulse(angle);
+    PWM_SetCompare1(pulse);
+}
+

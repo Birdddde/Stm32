@@ -3,21 +3,21 @@
 #include "task.h"
 
 void Beep_Init(void){
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
 	
 	GPIO_InitTypeDef GPIO_InitStructure;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);	
-	GPIO_SetBits(GPIOB, GPIO_Pin_13);
+	GPIO_Init(GPIOC, &GPIO_InitStructure);	
+	GPIO_SetBits(GPIOC, GPIO_Pin_13);
 }
 
 void Beep_On(uint16_t ms){
 
-	GPIO_ResetBits(GPIOB, GPIO_Pin_13);
+	GPIO_ResetBits(GPIOC, GPIO_Pin_13);
 	vTaskDelay(pdMS_TO_TICKS(ms));
-	GPIO_SetBits(GPIOB, GPIO_Pin_13);
+	GPIO_SetBits(GPIOC, GPIO_Pin_13);
 	vTaskDelay(pdMS_TO_TICKS(ms));
 	
 }

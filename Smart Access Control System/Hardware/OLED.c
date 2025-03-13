@@ -84,7 +84,7 @@
 uint8_t OLED_DisplayBuf[8][128];
 
 /*********************全局变量*/
-extern SemaphoreHandle_t xOledMutex ;
+extern SemaphoreHandle_t g_xOledMutex ;
 
 
 /*引脚配置*********************/
@@ -417,7 +417,7 @@ uint8_t OLED_IsInAngle(int16_t X, int16_t Y, int16_t StartAngle, int16_t EndAngl
 void OLED_Update(void)
 {
 	uint8_t j;
-//	if (xSemaphoreTake(xOledMutex, portMAX_DELAY) == pdTRUE) {
+//	if (xSemaphoreTake(g_xOledMutex, portMAX_DELAY) == pdTRUE) {
 		/*遍历每一页*/
 		for (j = 0; j < 8; j ++)
 		{
@@ -427,7 +427,7 @@ void OLED_Update(void)
 			OLED_WriteData(OLED_DisplayBuf[j], 128);
 		}
 		// 释放 OLED 互斥锁
-//        xSemaphoreGive(xOledMutex);
+//        xSemaphoreGive(g_xOledMutex);
 //	}
 }
 
@@ -449,7 +449,7 @@ void OLED_UpdateArea(int16_t X, int16_t Y, uint8_t Width, uint8_t Height)
 {
 	int16_t j;
 	int16_t Page, Page1;
-//	if (xSemaphoreTake(xOledMutex, portMAX_DELAY) == pdTRUE) {
+//	if (xSemaphoreTake(g_xOledMutex, 0) == pdTRUE) {
 		/*负数坐标在计算页地址时需要加一个偏移*/
 		/*(Y + Height - 1) / 8 + 1的目的是(Y + Height) / 8并向上取整*/
 		Page = Y / 8;
@@ -472,7 +472,7 @@ void OLED_UpdateArea(int16_t X, int16_t Y, uint8_t Width, uint8_t Height)
 			}
 		}
 			// 释放 OLED 互斥锁
-//	  xSemaphoreGive(xOledMutex);
+//	  xSemaphoreGive(g_xOledMutex);
 //	}
 }
 

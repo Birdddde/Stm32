@@ -32,6 +32,7 @@
 .\objects\driver_as608.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\driver_as608.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\driver_as608.o: .\System\uart2.h
+.\objects\driver_as608.o: .\System\delay.h
 .\objects\driver_as608.o: .\RTOS\inc\freertos.h
 .\objects\driver_as608.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stddef.h
 .\objects\driver_as608.o: .\RTOS\portable\FreeRTOSConfig.h

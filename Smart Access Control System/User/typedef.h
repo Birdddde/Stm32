@@ -2,8 +2,8 @@
 #define __TYPEDEF_H
 
 typedef enum {
-    ACCESS_ADD = 0X01,
-    ACCESS_REMOVE = 0X02
+    ACCESS_ADD = 1,
+    ACCESS_REMOVE
 } Access_admin_t;
 /*
 	菜单结构体

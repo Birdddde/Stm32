@@ -34,3 +34,16 @@
 .\objects\finger.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\finger.o: .\Hardware\oled.h
 .\objects\finger.o: .\Hardware\OLED_Data.h
+.\objects\finger.o: .\Hardware\key.h
+.\objects\finger.o: .\RTOS\inc\freertos.h
+.\objects\finger.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\finger.o: .\RTOS\portable\FreeRTOSConfig.h
+.\objects\finger.o: .\RTOS\inc\projdefs.h
+.\objects\finger.o: .\RTOS\inc\portable.h
+.\objects\finger.o: .\RTOS\inc\deprecated_definitions.h
+.\objects\finger.o: .\RTOS\portable\portmacro.h
+.\objects\finger.o: .\RTOS\inc\mpu_wrappers.h
+.\objects\finger.o: .\RTOS\inc\timers.h
+.\objects\finger.o: .\RTOS\inc\task.h
+.\objects\finger.o: .\RTOS\inc\list.h
+.\objects\finger.o: .\RTOS\inc\queue.h

@@ -6,5 +6,6 @@ uint8_t RFID_Register(void);
 uint8_t RFID_Scan(void);
 void RFID_ReadBlock(uint8_t Block);
 uint8_t RFID_Remove(void);
-
+void RFID_Regis_Handler(void);
+void RFID_Remove_Handler(void);
 #endif

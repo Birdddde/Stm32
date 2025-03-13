@@ -1,17 +1,47 @@
 #include "stm32f10x.h"                  // Device header
 #include "finger.h"
 #include "oled.h"
+#include "key.h"
+
+#include "freertos.h"
+#include "task.h"
+#include "queue.h"
+
+extern TaskHandle_t g_xAs608Handle;
+uint16_t g_usFingerId;
+
 
 void Finger_Init(void){
 	AS608_Init();
+	
+	EXTI_InitTypeDef EXTI_InitStruc;
+	EXTI_InitStruc.EXTI_Line = EXTI_Line1;
+	EXTI_InitStruc.EXTI_Mode = EXTI_Mode_Interrupt;
+	EXTI_InitStruc.EXTI_Trigger = EXTI_Trigger_Rising;
+	EXTI_InitStruc.EXTI_LineCmd = ENABLE;
+	EXTI_Init(&EXTI_InitStruc);
+	
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
+	
+	NVIC_InitTypeDef NVIC_InitStruc;
+	NVIC_InitStruc.NVIC_IRQChannel = EXTI1_IRQn;
+	NVIC_InitStruc.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_InitStruc.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStruc.NVIC_IRQChannelSubPriority = 10;
+	
+	NVIC_Init(&NVIC_InitStruc);
+	
 }
 uint8_t PS_StaIO(void){
-	return GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_12);
+	return GPIO_ReadInputDataBit(GPIOA,GPIO_Pin_1);
 }
+
+
 
 uint8_t Finger_Flush(as608_status_t* as608_status,uint16_t * Page_id,uint16_t * Match_score){
 	as608_status_t status;
-			
+	
+	
 	// 获取指纹图像
 	if (!PS_GetImage(&status)) {
 	   return 0;
@@ -82,7 +112,7 @@ uint8_t Finger_Register(as608_status_t* as608_status, uint16_t Page_id) {
     return REG_FINGER_SUCCESS;
 }
 
-uint8_t Finger_Remove(void){
+uint8_t Finger_Remove_Handler(void){
 	as608_status_t status;
 	uint16_t Page_id,Match_score;
 	
@@ -145,3 +175,60 @@ uint8_t Finger_Remove(void){
 	return 0;	//failed
 }
 
+void Finger_Regis_Handler(void){
+	as608_status_t as608_status;
+	uint8_t status;
+	
+	OLED_ClearArea(0,24,128,24);
+	OLED_ShowString(0,32,"scanning...",OLED_6X8);
+	OLED_UpdateArea(0,24,128,24);
+	while(1){
+		
+		if (KeyNum_Get() == 4) 
+		{
+			OLED_ClearArea(0,24,128,24);
+			OLED_UpdateArea(0,24,128,24);
+			break;
+		}
+		
+		if(g_usFingerId >300){					//是否超过存储容量范围
+			OLED_ClearArea(0,24,128,24);
+			OLED_ShowString(0,32,"Finger data is full",OLED_6X8);
+			OLED_UpdateArea(0,24,128,24);
+			vTaskDelay(2000);
+			OLED_ClearArea(0,24,128,24);
+			OLED_UpdateArea(0,24,128,24);
+			break;
+		}else
+		{
+			status = Finger_Register(&as608_status,g_usFingerId++);
+
+			if( status == REG_FINGER_SUCCESS ){
+				OLED_ClearArea(0,24,128,24);
+				OLED_ShowString(0,32,"Register success !",OLED_6X8);
+				OLED_UpdateArea(0,24,128,24);
+				vTaskDelay(2000);
+				break;
+			}else{
+				OLED_ClearArea(0,24,128,24);
+				OLED_ShowString(0,32,"Registering...",OLED_6X8);
+				OLED_UpdateArea(0,24,128,24);
+				vTaskDelay(2000);
+			}
+			
+		}		
+	}
+	OLED_ClearArea(0,24,128,24);
+	OLED_UpdateArea(0,24,128,24);
+	
+}
+
+void EXTI1_IRQHandler(void){
+	
+	if (EXTI_GetITStatus(EXTI_Line1))
+	{
+		xTaskNotify(g_xAs608Handle, 0x01, eSetBits);
+	}
+	EXTI_ClearITPendingBit(EXTI_Line1);
+	
+}

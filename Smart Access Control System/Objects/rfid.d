@@ -33,3 +33,17 @@
 .\objects\rfid.o: .\Hardware\driver_rc522.h
 .\objects\rfid.o: .\Hardware\rc522.h
 .\objects\rfid.o: .\System\uart1.h
+.\objects\rfid.o: .\Hardware\oled.h
+.\objects\rfid.o: .\Hardware\OLED_Data.h
+.\objects\rfid.o: .\Hardware\key.h
+.\objects\rfid.o: .\RTOS\inc\freertos.h
+.\objects\rfid.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\rfid.o: .\RTOS\portable\FreeRTOSConfig.h
+.\objects\rfid.o: .\RTOS\inc\projdefs.h
+.\objects\rfid.o: .\RTOS\inc\portable.h
+.\objects\rfid.o: .\RTOS\inc\deprecated_definitions.h
+.\objects\rfid.o: .\RTOS\portable\portmacro.h
+.\objects\rfid.o: .\RTOS\inc\mpu_wrappers.h
+.\objects\rfid.o: .\RTOS\inc\timers.h
+.\objects\rfid.o: .\RTOS\inc\task.h
+.\objects\rfid.o: .\RTOS\inc\list.h

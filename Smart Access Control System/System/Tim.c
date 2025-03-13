@@ -26,7 +26,7 @@ void vTimerCallback(xTimerHandle pxTimer)
 void Timer_Create(void)
 {
 
-    const TickType_t xTimerPeriod[2] = {pdMS_TO_TICKS(20),pdMS_TO_TICKS(10000)};  // 定时器周期40ms
+    const TickType_t xTimerPeriod[2] = {pdMS_TO_TICKS(60),pdMS_TO_TICKS(10000)};  // 定时器周期40ms
 	 
     g_xKeyScanTimer = xTimerCreate("KeyScanTimer",  // 定时器名称
                                     xTimerPeriod[0],    // 定时器周期
@@ -37,14 +37,14 @@ void Timer_Create(void)
         xTimerStart(g_xKeyScanTimer, 0);  // 启动定时器
     }
 	 
-    g_xUpdateTimer = xTimerCreate("UpdateTimer",  // 定时器名称
-                                    xTimerPeriod[1],    // 定时器周期
-                                    pdTRUE,          // 周期性定时器
-                                    (void*)1,             // 定时器 ID
-                                    vTimerCallback); // 回调函数
-	 if (g_xUpdateTimer!= NULL) {
-        xTimerStart(g_xUpdateTimer, 0);  // 启动定时器
-    }	 
+//    g_xUpdateTimer = xTimerCreate("UpdateTimer",  // 定时器名称
+//                                    xTimerPeriod[1],    // 定时器周期
+//                                    pdTRUE,          // 周期性定时器
+//                                    (void*)1,             // 定时器 ID
+//                                    vTimerCallback); // 回调函数
+//	 if (g_xUpdateTimer!= NULL) {
+//        xTimerStart(g_xUpdateTimer, 0);  // 启动定时器
+//    }	 
 }
 
 

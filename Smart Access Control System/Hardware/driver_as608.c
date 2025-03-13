@@ -1,6 +1,7 @@
 #include "stm32f10x.h"                  // Device header
 #include "driver_as608.h"
 #include "uart2.h"
+#include "delay.h"
 
 #include "freertos.h"
 #include "queue.h"
@@ -17,13 +18,13 @@ As608_PacketInfo_t* As608_Packet = &As608_Packet_t;
 
 void PS_StaGPIO_Init(void){   
 	GPIO_InitTypeDef  GPIO_InitStructure;
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_ResetBits(GPIOB,GPIO_Pin_12);
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+	GPIO_ResetBits(GPIOA,GPIO_Pin_1);
 }
 
 
@@ -38,8 +39,8 @@ uint8_t AS608_Read(uint16_t delay_ms){
 	uint8_t pindex = 10;
 	uint16_t sum = 0;
 	
-	vTaskDelay( pdMS_TO_TICKS(delay_ms) );	//等待AS608应答,延时函数
-	
+	Delay_ms(delay_ms);	//等待AS608应答,延时函数
+
 	if(xQueueReceive(xQueueUart2,buffer, pdMS_TO_TICKS(500) ) == pdPASS){		
 
 		As608_Packet->Identifier = buffer[6];
@@ -61,6 +62,7 @@ uint8_t AS608_Read(uint16_t delay_ms){
 		}
 		
 	}
+
 	return 0;
 }
 

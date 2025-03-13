@@ -3,6 +3,8 @@
 #include "string.h"
 #include "driver_rc522.h"  
 #include "uart1.h" 
+#include "oled.h"
+#include "key.h"
 
 uint8_t ucaControlB[16] = {0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,		 
 									0xff,0x07,0x80,0x69,					 
@@ -114,4 +116,62 @@ uint8_t RFID_Remove(void){
 		 return 1;
 	}
 	return 0;
+}
+
+void RFID_Regis_Handler(void){
+	uint8_t status;
+//	OLED_ClearArea(0,24,128,24);
+//	OLED_ShowString(0,32,"scanning...",OLED_6X8);
+//	OLED_UpdateArea(0,24,128,24);
+	while( 1 ){
+		if (KeyNum_Get() == 4) {
+			OLED_ClearArea(0,24,128,24);
+			OLED_UpdateArea(0,24,128,24);
+			break;
+		}
+		status = RFID_Register();
+		if( status ){
+			OLED_ClearArea(0,24,128,24);
+			OLED_ShowString(0,32,"Register success !",OLED_6X8);
+			OLED_UpdateArea(0,24,128,24);
+			vTaskDelay(2000);
+			OLED_ClearArea(0,24,128,24);
+			OLED_UpdateArea(0,24,128,24);
+			break;
+		}else{
+			OLED_ClearArea(0,24,128,24);
+			OLED_ShowString(0,32,"Registering",OLED_6X8);
+			OLED_UpdateArea(0,24,128,24);
+		}
+	}
+}
+
+void RFID_Remove_Handler(void){
+	
+	OLED_ClearArea(0,24,128,24);
+	OLED_ShowString(0,32,"scanning...",OLED_6X8);
+	OLED_UpdateArea(0,24,128,24);
+	while( 1 )
+	{
+		if (KeyNum_Get() == 4) 
+		{
+			OLED_ClearArea(0,24,128,24);
+			OLED_UpdateArea(0,24,128,24);
+			break;
+		}						
+		if( RFID_Remove() )
+		{
+			OLED_ClearArea(0,24,128,24);
+			OLED_ShowString(0,32,"Remove success !",OLED_6X8);
+			OLED_UpdateArea(0,24,128,24);
+			vTaskDelay(2000);
+			OLED_ClearArea(0,24,128,24);
+			OLED_UpdateArea(0,24,128,24);
+			break;
+		}else{
+			OLED_ClearArea(0,24,128,24);
+			OLED_ShowString(0,32,"Removing",OLED_6X8);
+			OLED_UpdateArea(0,24,128,24);
+		}
+	}
 }

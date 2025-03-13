@@ -76,11 +76,11 @@ void vKeyScan(void)
 uint8_t KeyNum_Get(void)
 {
 	uint8_t KeyNum = 0;
-	xSemaphoreGive(g_xMutex_Key);
+//	xSemaphoreGive(g_xMutex_Key);
 	if(g_ucKeyNum != 0){
 		KeyNum = g_ucKeyNum;
 		g_ucKeyNum = 0;
 	}
-	xSemaphoreTake(g_xMutex_Key,0);
+//	xSemaphoreTake(g_xMutex_Key,0);
 	return KeyNum;
 }

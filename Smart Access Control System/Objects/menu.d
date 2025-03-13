@@ -46,3 +46,7 @@
 .\objects\menu.o: .\Hardware\OLED_Data.h
 .\objects\menu.o: User\typedef.h
 .\objects\menu.o: User\esp01s_wifimoudle.h
+.\objects\menu.o: User\finger.h
+.\objects\menu.o: .\Hardware\driver_as608.h
+.\objects\menu.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\menu.o: User\rfid.h
