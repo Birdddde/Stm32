@@ -26,10 +26,10 @@ void Key_Init(void)
 
 uint8_t KeyNum_Get_Callback(void)
 {
-	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_3) == 0)	return 1;
-	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_4) == 0)	return 2;
-	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_5) == 0)	return 3;
-	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_6) == 0)	return 4;
+	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_3) == 0)	return 4;
+	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_4) == 0)	return 3;
+	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_5) == 0)	return 2;
+	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_6) == 0)	return 1;
 	
 	return 0;
 }

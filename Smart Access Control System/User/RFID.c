@@ -5,6 +5,7 @@
 #include "uart1.h" 
 #include "oled.h"
 #include "key.h"
+#include "storage.h"
 
 uint8_t ucaControlB[16] = {0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,		 
 									0xff,0x07,0x80,0x69,					 
@@ -21,10 +22,28 @@ uint8_t ucaID[4];
 
 void RFID_Init(void){
 	RC522_Init();
+	Storage_Init();
+}
+
+void RFID_ReadBlock(uint8_t Block){
+	  
+  if( PcdRead(Block,ucaBuffer_wr) != MI_OK )
+  {    
+//	  printf("PcdRead Block %x failure\r\n",Block);  
+  }
+  else
+  {
+//	  printf("block :%x: ",Block);
+//	  for( uint8_t i = 0; i < 16; i++ )
+//	  {
+//		  printf("%x",ucaBuffer_wr[i]);
+//	  }
+//	  printf("\r\n");
+  }
 }
 
 uint8_t RFID_Test(uint8_t ucAuth_mode, uint8_t ucAddr,uint8_t* pArray_ID,uint8_t* pCard_Key){
-
+	
 	if(PcdRequest ( PICC_REQALL, pArray_ID ) == MI_OK)	//寻卡
 	{		
 		if ( PcdAnticoll ( pArray_ID ) == MI_OK )			//防冲突机制
@@ -39,52 +58,40 @@ uint8_t RFID_Test(uint8_t ucAuth_mode, uint8_t ucAddr,uint8_t* pArray_ID,uint8_t
 	return 0;
 }
 
-uint8_t RFID_Scan(void){
+uint8_t RFID_Scan(uint8_t* CardID){
+	uint16_t card_cnt;
 	
 	if( RFID_Test(PICC_AUTHENT1A,7,ucaID,ucaCard_key) ){
+		
+		for(uint8_t i = 0 ; i < 4 ;i ++)
+		{
+			CardID[i] = ucaID[i];
+		}
+		if( RC522_ID_IsExist(ucaID,&card_cnt) )	
 		return 1;
 	}
 	return 0;
 }
 
-void RFID_ReadBlock(uint8_t Block){
-	  
-  if( PcdRead(Block,ucaBuffer_wr) != MI_OK )
-  {    printf("PcdRead Block %x failure\r\n",Block);  }
-  else
-  {
-//	  printf("block :%x: ",Block);
-//	  for( uint8_t i = 0; i < 16; i++ )
-//	  {
-//		  printf("%x",ucaBuffer_wr[i]);
-//	  }
-//	  printf("\r\n");
-  }
-}
 
 uint8_t RFID_Register(void){
 
 	if( RFID_Test(PICC_AUTHENT1A,7,ucaID,ucaCard_defaultkey) ){					
-
-		if( PcdWrite(7,ucaControlB) != MI_OK ){    			
-//			printf("PcdWrite failure\r\n");          
-			return 0;
-		}
-//		else{ printf("PcdWrite ControlBlock success\r\n"); }						
 	  
 		if( PcdWrite(6,ucaVertify) != MI_OK ){    
-//			printf("PcdWrite failure\r\n"); 
 			return 0;
 		}
-//		else
-//		{ printf("PcdWrite DataBlock success\r\n"); }
-		 
-		 return 1;
+
+		if( PcdWrite(7,ucaControlB) != MI_OK ){    			
+			return 0;
+		}		
+		return 1;
 	}
 	return 0;
 }
 
 uint8_t RFID_Remove(void){
+	uint16_t cnt;
 	
    for( uint8_t i = 0; i < 6; i++ )
    { 
@@ -98,31 +105,26 @@ uint8_t RFID_Remove(void){
    { 
 	   ucaBuffer_wr[i] = ucaCard_defaultkey[i-10];
    }
-	if( RFID_Scan() ){					
-
-		if( PcdWrite(7,ucaBuffer_wr) != MI_OK ){    			
-//			printf("PcdWrite failure\r\n");          
-			return 0;
-		}
-//		else{ printf("PcdWrite ControlBlock success\r\n"); }						
+	if( RFID_Scan(ucaID) ){					
+		
+		if( !RC522_ID_IsExist(ucaID,&cnt) )	return 0;	//检查Flash是否存在卡数据
+		
+		if( PcdWrite(7,ucaBuffer_wr) != MI_OK )	return 0;
 	  
 		memset(ucaBuffer_wr,0,sizeof(ucaBuffer_wr));
-		if( PcdWrite(6,ucaBuffer_wr) != MI_OK ){    
-//			printf("PcdWrite failure\r\n"); 
-			return 0;
-		}
-//		else{ printf("PcdWrite DataBlock success\r\n"); }
-		 
-		 return 1;
+		
+		if( PcdWrite(6,ucaBuffer_wr) != MI_OK )	return 0;
+
+		if(RC522_Delete(cnt) != FLASH_OK)	return 0;	//删除Flash内卡数据
+		
+		return 1;
 	}
 	return 0;
 }
 
 void RFID_Regis_Handler(void){
 	uint8_t status;
-//	OLED_ClearArea(0,24,128,24);
-//	OLED_ShowString(0,32,"scanning...",OLED_6X8);
-//	OLED_UpdateArea(0,24,128,24);
+
 	while( 1 ){
 		if (KeyNum_Get() == 4) {
 			OLED_ClearArea(0,24,128,24);
@@ -131,13 +133,16 @@ void RFID_Regis_Handler(void){
 		}
 		status = RFID_Register();
 		if( status ){
-			OLED_ClearArea(0,24,128,24);
-			OLED_ShowString(0,32,"Register success !",OLED_6X8);
-			OLED_UpdateArea(0,24,128,24);
-			vTaskDelay(2000);
-			OLED_ClearArea(0,24,128,24);
-			OLED_UpdateArea(0,24,128,24);
-			break;
+			if(RC522_WriteIDToFlash(ucaID) == FLASH_OK){
+				OLED_ClearArea(0,24,128,24);
+				OLED_ShowString(0,32,"Register success !",OLED_6X8);
+				OLED_UpdateArea(0,24,128,24);
+
+				vTaskDelay(2000);
+				OLED_ClearArea(0,24,128,24);
+				OLED_UpdateArea(0,24,128,24);
+				break;
+			}
 		}else{
 			OLED_ClearArea(0,24,128,24);
 			OLED_ShowString(0,32,"Registering",OLED_6X8);
@@ -148,9 +153,6 @@ void RFID_Regis_Handler(void){
 
 void RFID_Remove_Handler(void){
 	
-	OLED_ClearArea(0,24,128,24);
-	OLED_ShowString(0,32,"scanning...",OLED_6X8);
-	OLED_UpdateArea(0,24,128,24);
 	while( 1 )
 	{
 		if (KeyNum_Get() == 4) 

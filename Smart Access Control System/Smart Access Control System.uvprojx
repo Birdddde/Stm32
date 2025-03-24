@@ -489,6 +489,36 @@
               <FileType>5</FileType>
               <FilePath>.\hardware\Beep.h</FilePath>
             </File>
+            <File>
+              <FileName>Light.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\System\Light.c</FilePath>
+            </File>
+            <File>
+              <FileName>Light.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\System\Light.h</FilePath>
+            </File>
+            <File>
+              <FileName>W25Q64BV.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\W25Q64BV.c</FilePath>
+            </File>
+            <File>
+              <FileName>W25Q64BV.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\W25Q64BV.h</FilePath>
+            </File>
+            <File>
+              <FileName>body_infrared.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Hardware\body_infrared.c</FilePath>
+            </File>
+            <File>
+              <FileName>body_infrared.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\body_infrared.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -868,6 +898,26 @@
               <FileName>ESP01S_WIFIMOUDLE.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\User\ESP01S_WIFIMOUDLE.h</FilePath>
+            </File>
+            <File>
+              <FileName>Storage.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\Storage.c</FilePath>
+            </File>
+            <File>
+              <FileName>Storage.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\User\Storage.h</FilePath>
+            </File>
+            <File>
+              <FileName>Face.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\Face.c</FilePath>
+            </File>
+            <File>
+              <FileName>Face.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\User\Face.h</FilePath>
             </File>
           </Files>
         </Group>

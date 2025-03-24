@@ -8,8 +8,9 @@
 #include "esp01s_wifimoudle.h"
 #include "finger.h"
 #include "rfid.h"
+#include "face.h"
 
-extern TaskHandle_t g_xRC522Handle,g_xMenuHandle,g_xAs608Handle;
+extern TaskHandle_t g_xRC522Handle,g_xMenuHandle,g_xAs608Handle,g_xK210Handle;
 extern volatile MenuState_t menuState;
 extern uint8_t g_ucaAdmin_pass[4];
 
@@ -92,19 +93,17 @@ void Operation_Finger(void) {
 }
 
 void Operation_Face(void) {
-	OLED_ShowString(0,24,"Face",OLED_6X8);
-	OLED_UpdateArea(0,24,128,16);
+	
 	switch (g_xMenu_Opera){
 		case OPERATION_REGISTER:
-			OLED_ShowString(0,32,"Plese put Face to",OLED_6X8);
-			OLED_ShowString(0,40,"register !",OLED_6X8);
+			Face_Regis_Handler();
 			break;
 		case OPERATION_REMOVE:
-			OLED_ShowString(0,32,"Plese put Face to",OLED_6X8);
-			OLED_ShowString(0,40,"remove !",OLED_6X8);
+			Face_Remove_Handler();
 			break;
 		default:
 			OLED_ShowString(0,32,"Error occured",OLED_6X8);
+			OLED_UpdateArea(0,32,128,16);
 			break;
 	}
 	OLED_UpdateArea(0,32,128,16);
@@ -118,7 +117,7 @@ void Exit_Func(void) {
 	 menuState = MENU_INACTIVE;
 	 vTaskResume(g_xRC522Handle);
 	 vTaskResume(g_xAs608Handle);
-	
+	vTaskResume(g_xK210Handle);
 }
 
 void Pass_Func(){

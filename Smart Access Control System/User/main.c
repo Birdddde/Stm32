@@ -5,27 +5,29 @@
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"  
+#include "tim.h"
 
 #include "oled.h"
-#include "delay.h"
-#include "uart1.h"
-#include "uart2.h"
-#include "uart3.h"
-#include "key.h"
-#include "tim.h"
-#include "typedef.h"
-#include "rfid.h"
-#include "menu.h"
+#include "face.h"
 #include "finger.h"
+#include "rfid.h"
 #include "servo.h"
 #include "beep.h"
+#include "light.h"
 #include "esp01s_wifimoudle.h"
+#include "body_infrared.h"
+#include "key.h"
+#include "typedef.h"
+#include "menu.h"
+
 
 #define MENU_MAIN_LENGTH 3
 
 TaskHandle_t g_xRC522Handle = NULL;
 TaskHandle_t g_xMenuHandle = NULL;
 TaskHandle_t g_xAs608Handle = NULL;
+TaskHandle_t g_xLightHandle = NULL;
+TaskHandle_t g_xK210Handle = NULL;
 
 wifi_error_t g_xError;				//阿里云连接错误标志位
 uint8_t g_ucDoor_status = 0;		//门锁状态标志位
@@ -85,10 +87,12 @@ void MenuTask(void *p){
 	
 	while(1){
 		
-		if(xTaskNotifyWait(0, 0x03, &ulNotificationValue, 0) == pdPASS) {
+		if(xTaskNotifyWait(0x03, 0x03, &ulNotificationValue, 0) == pdPASS) {
 			if(ulNotificationValue & 0x01){
 				vTaskSuspend(g_xRC522Handle);	//暂停任务
 				vTaskSuspend(g_xAs608Handle);
+				vTaskSuspend(g_xK210Handle);
+
 				Menu_Init();
 				menuState = MENU_ACTIVE;
 				Display_Refresh();
@@ -107,10 +111,9 @@ void MenuTask(void *p){
 		}else
 		{
 			if(Flag_Access){
-				OLED_ShowImage(48,16,32,32,Unlock32x32);
 				Servo_Control_Angle(180);
 				g_ucDoor_status = 1;
-				vTaskDelay(pdMS_TO_TICKS(3000));
+				vTaskDelay(pdMS_TO_TICKS(2000));
 				Flag_Access=0;
 			}else{
 				OLED_ShowImage(48,16,32,32,Lock32x32);
@@ -127,31 +130,19 @@ void MenuTask(void *p){
 		
 		vTaskDelay(pdMS_TO_TICKS(100)); // 非激活状态时降低检测频
 	}
-	
 }
 
 void RC522Task(void *p){
-	
-	uint8_t ucStatus;
-//	uint32_t ulNotificationValue;
+	static uint8_t ucStatus;
+	static uint8_t CardId[4]={0};
 	
 	while(1){
 
-		ucStatus = RFID_Scan();
-		
-//		if(xTaskNotifyWait(0, 0x03, &ulNotificationValue, 0) == pdPASS) {
-//			if (ulNotificationValue & ACCESS_ADD) {
-//				
-
-//				 vTaskSuspend(NULL);
-//			}
-//			if (ulNotificationValue & ACCESS_REMOVE) {
-
-//				 vTaskSuspend(NULL);
-//			}
-//      }	
+		ucStatus = RFID_Scan(CardId);	
 		
 		if(ucStatus){
+			ucStatus = 0;
+//			if(! RC522_ID_IsExist(CardId,&ucCard_cnt) )	
 //			MQTT_UploadState(g_ucDoor_status);
 			xTaskNotify(g_xMenuHandle,0x02,eSetBits);
 		}
@@ -161,24 +152,32 @@ void RC522Task(void *p){
 
 void K210Task(void *p){
 	
-	uint32_t ulNotificationValue;
-	uint16_t usPage_id=0;
+	static uint8_t ucStatus;
 	
-	Serial3_SendString("hello k210");
-	while(1){
-		if(xTaskNotifyWait(0, 0x03, &ulNotificationValue, 0) == pdPASS) {
-			if (ulNotificationValue & ACCESS_ADD) {
-				Serial3_SendString("k210:register");
-				Serial3_SendBByte(usPage_id++);
-			}
-			
-			if (ulNotificationValue & ACCESS_REMOVE) {
-				Serial3_SendString("k210:remove");
-			}			
-			
+	while(1){	
+		ucStatus = Face_Scan();
+		if(ucStatus){
+			ucStatus = 0;
+			xTaskNotify(g_xMenuHandle,0x02,eSetBits);
 		}
-		
+			
+		vTaskDelay(pdMS_TO_TICKS(2000)); // 非激活状态时降低检测频
 	}
+}
+
+void LightTask(void *p){
+	TickType_t Tick=pdMS_TO_TICKS(5000);
+	
+	while(1){
+
+		if( Body_Infra_GetData() == 1 )
+			Light_On();
+		else
+			Light_Off();
+		
+		vTaskDelay(Tick);
+	}
+	
 }
 
 int main(void)
@@ -188,10 +187,13 @@ int main(void)
 	RFID_Init();
    Key_Init();  
 	Finger_Init();
+	Face_Init();
 	Beep_Init();
 	Servo_Init();
-	Serial3_Init(115200);
+	Light_Init();
+	Body_Infra_Init();
 //	ESP01S_Init();
+	
 	
 //	g_xMutex_Wifi= xSemaphoreCreateMutex();	//创建互斥信号量	
 	g_xMutex_Key = xSemaphoreCreateMutex();
@@ -217,11 +219,13 @@ int main(void)
 //		MQTT_UploadPass(g_ucaAdmin_pass);
 		Timer_Create();
 		xTaskCreate(MenuTask, "Menu", 128, NULL, 60, &g_xMenuHandle);
-//		xTaskCreate(K210Task, "K210", 128, NULL, 66, &g_xMenuHandle);
-		xTaskCreate(RC522Task, "RC522", 128, NULL, 65, &g_xRC522Handle);
-		xTaskCreate(AS608Task, "AS608", 128, NULL, 70, &g_xAs608Handle);
+		xTaskCreate(K210Task, "K210", 128, NULL, 70, &g_xK210Handle);
+		xTaskCreate(RC522Task,"RC522", 256, NULL, 65, &g_xRC522Handle);
+		xTaskCreate(AS608Task,"AS608", 128, NULL, 68, &g_xAs608Handle);
+		xTaskCreate(LightTask,"Light",56,NULL,62,&g_xLightHandle);
 //	}
-   vTaskStartScheduler();
+
+	vTaskStartScheduler();
    while (1)//启动成功，将不会执行该处
    {
 	  

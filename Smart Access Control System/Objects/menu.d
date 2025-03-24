@@ -50,3 +50,4 @@
 .\objects\menu.o: .\Hardware\driver_as608.h
 .\objects\menu.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\menu.o: User\rfid.h
+.\objects\menu.o: User\face.h

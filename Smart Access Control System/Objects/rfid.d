@@ -47,3 +47,4 @@
 .\objects\rfid.o: .\RTOS\inc\timers.h
 .\objects\rfid.o: .\RTOS\inc\task.h
 .\objects\rfid.o: .\RTOS\inc\list.h
+.\objects\rfid.o: User\storage.h
