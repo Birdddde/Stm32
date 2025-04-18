@@ -2,13 +2,14 @@
 #include "finger.h"
 #include "oled.h"
 #include "key.h"
+#include "storage.h"
 
 #include "freertos.h"
 #include "task.h"
 #include "queue.h"
 
 extern TaskHandle_t g_xAs608Handle;
-uint16_t g_usFingerId;
+uint16_t g_usFingerId = 0;
 
 
 void Finger_Init(void){
@@ -139,6 +140,7 @@ uint8_t Finger_Remove_Handler(void){
 			}else{
 				OLED_ShowString(0,32,"Remove Finished",OLED_6X8);
 				OLED_UpdateArea(0,32,128,16);
+				Finger_WriteSumToFlash(--g_usFingerId);
 				return 1;			//success
 			}			
 			break;
@@ -191,7 +193,7 @@ void Finger_Regis_Handler(void){
 			break;
 		}
 		
-		if(g_usFingerId >300){					//是否超过存储容量范围
+		if(g_usFingerId >MAX_FINGERS){					//是否超过存储容量范围
 			OLED_ClearArea(0,24,128,24);
 			OLED_ShowString(0,32,"Finger data is full",OLED_6X8);
 			OLED_UpdateArea(0,24,128,24);
@@ -207,6 +209,7 @@ void Finger_Regis_Handler(void){
 				OLED_ClearArea(0,24,128,24);
 				OLED_ShowString(0,32,"Register success !",OLED_6X8);
 				OLED_UpdateArea(0,24,128,24);
+				Finger_WriteSumToFlash(g_usFingerId);
 				vTaskDelay(2000);
 				break;
 			}else{

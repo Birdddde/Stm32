@@ -67,7 +67,7 @@ uint8_t RFID_Scan(uint8_t* CardID){
 		{
 			CardID[i] = ucaID[i];
 		}
-		if( RC522_ID_IsExist(ucaID,&card_cnt) )	
+//		if( RC522_ID_IsExist(ucaID,&card_cnt) )	
 		return 1;
 	}
 	return 0;
@@ -106,16 +106,14 @@ uint8_t RFID_Remove(void){
 	   ucaBuffer_wr[i] = ucaCard_defaultkey[i-10];
    }
 	if( RFID_Scan(ucaID) ){					
-		
-		if( !RC522_ID_IsExist(ucaID,&cnt) )	return 0;	//检查Flash是否存在卡数据
-		
+				
 		if( PcdWrite(7,ucaBuffer_wr) != MI_OK )	return 0;
 	  
 		memset(ucaBuffer_wr,0,sizeof(ucaBuffer_wr));
 		
 		if( PcdWrite(6,ucaBuffer_wr) != MI_OK )	return 0;
 
-		if(RC522_Delete(cnt) != FLASH_OK)	return 0;	//删除Flash内卡数据
+//		if(RC522_Delete(cnt) != FLASH_OK)	return 0;	//删除Flash内卡数据
 		
 		return 1;
 	}
@@ -133,7 +131,7 @@ void RFID_Regis_Handler(void){
 		}
 		status = RFID_Register();
 		if( status ){
-			if(RC522_WriteIDToFlash(ucaID) == FLASH_OK){
+//			if(RC522_WriteIDToFlash(ucaID) == FLASH_OK){
 				OLED_ClearArea(0,24,128,24);
 				OLED_ShowString(0,32,"Register success !",OLED_6X8);
 				OLED_UpdateArea(0,24,128,24);
@@ -142,7 +140,7 @@ void RFID_Regis_Handler(void){
 				OLED_ClearArea(0,24,128,24);
 				OLED_UpdateArea(0,24,128,24);
 				break;
-			}
+//			}
 		}else{
 			OLED_ClearArea(0,24,128,24);
 			OLED_ShowString(0,32,"Registering",OLED_6X8);

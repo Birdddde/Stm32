@@ -13,8 +13,10 @@
 #define INVALID_SUM 0xFFFF
 
 static uint8_t sector_buffer[4096]={0xff};			
-	 
 static uint16_t g_ulSum = 0;
+extern uint16_t g_usFingerId;
+extern uint8_t g_ucaAdmin_pass[4];
+uint8_t Admin_Default[4] = {0,0,0,0};
 
 // 内部函数声明
 static Flash_Status_t CheckAddress(uint32_t address);
@@ -222,26 +224,6 @@ void RC522_EraseAll(void)
     g_ulSum = 0;
 }
 
-/**
- * @brief 存储系统初始化
- */
-void Storage_Init(void)
-{
-    // 初始化Flash
-    W25Q64BV_Init();
-    
-    // 初始化计数器
-    uint16_t sum = RC522_GetSum();
-    if (sum == INVALID_SUM) {
-        g_ulSum = 0;
-        RC522_WriteSumToFlash(0);
-    } else {
-        g_ulSum = sum;
-    }
-    
-    // 清空缓冲区
-    memset(sector_buffer, 0xFF, sizeof(sector_buffer));
-}
 
 /**
  * @brief 检查地址是否有效
@@ -278,3 +260,112 @@ static Flash_Status_t WriteToSector(uint32_t sector_address, uint8_t* data, uint
     
     return FLASH_OK;
 }
+
+//******************************指纹与管理员****************************************//////
+void Finger_WriteSumToFlash(uint16_t Sum)
+{
+    uint32_t Address = FINGERID;
+    uint8_t data[2];
+    
+    if (Sum > MAX_FINGERS) {
+        return;
+    }
+    
+    data[0] = Sum & 0xFF;
+    data[1] = (Sum >> 8) & 0xFF;
+    
+    W25Q64BV_SectorErase(Address);
+    W25Q64BV_PageProgram(Address, data, 2);
+}
+
+uint16_t Finger_GetSum(void)
+{
+    uint32_t Address = FINGERID;
+    uint16_t Sum = 0;
+    
+    if (CheckAddress(Address) != FLASH_OK) {
+        return INVALID_SUM;
+    }
+    
+    MySPI_Start();
+    MySPI_SwapByte(W25Q64_READ_DATA);
+    MySPI_SwapByte(Address >> 16);
+    MySPI_SwapByte(Address >> 8);
+    MySPI_SwapByte(Address);
+    
+    Sum = MySPI_SwapByte(W25Q64_DUMMY_BYTE);
+    Sum |= (uint16_t)MySPI_SwapByte(W25Q64_DUMMY_BYTE) << 8;
+    
+    MySPI_StoP();
+    return Sum;   
+}
+
+void Admin_WritePassToFlash(uint8_t* Pass)
+{
+    uint32_t Address = ADMIN_PASS;
+    
+    W25Q64BV_SectorErase(Address);
+    W25Q64BV_PageProgram(Address, Pass, 4);
+}
+
+uint16_t Admin_GetPass(uint8_t *Pass)
+{
+    uint32_t Address = ADMIN_PASS;
+    
+    if (CheckAddress(Address) != FLASH_OK) {
+        return INVALID_SUM;
+    }
+    
+    MySPI_Start();
+    MySPI_SwapByte(W25Q64_READ_DATA);
+    MySPI_SwapByte(Address >> 16);
+    MySPI_SwapByte(Address >> 8);
+    MySPI_SwapByte(Address);
+    
+	 for (uint8_t i = 0; i < 4; i ++) {
+        Pass[i] = MySPI_SwapByte(W25Q64_DUMMY_BYTE);
+    }
+    
+    MySPI_StoP();
+    return FLASH_OK;   
+}
+
+
+/**
+ * @brief 存储系统初始化
+ */
+void Storage_Init(void)
+{
+	uint8_t Pass[4];
+	
+    // 初始化Flash
+    W25Q64BV_Init();
+    
+    // 初始化计数器
+    uint16_t sum = RC522_GetSum();
+    if (sum == INVALID_SUM) {
+        g_ulSum = 0;
+        RC522_WriteSumToFlash(0);
+    } else {
+        g_ulSum = sum;
+    }
+	 
+	 sum = Finger_GetSum();
+    if (sum >= MAX_FINGERS) {
+        g_usFingerId = 0;
+        Finger_WriteSumToFlash(0);
+    } else {
+        g_usFingerId = sum;
+    }
+	 
+	 Admin_GetPass(Pass);
+	 if( Pass[0] == 0xFF|| Pass[1] == 0xFF || Pass[2] == 0xFF || Pass[3] == 0xFF)
+	 {
+		Admin_WritePassToFlash(Admin_Default);
+	 }else
+	 {
+		Admin_GetPass(g_ucaAdmin_pass);
+	 }
+	 
+}
+

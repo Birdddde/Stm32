@@ -58,3 +58,6 @@
 .\objects\main.o: .\RTOS\inc\timers.h
 .\objects\main.o: User\typedef.h
 .\objects\main.o: User\menu.h
+.\objects\main.o: .\System\uart1.h
+.\objects\main.o: User\storage.h
+.\objects\main.o: .\System\delay.h

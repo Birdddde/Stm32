@@ -11,7 +11,7 @@
 
 char gEsp01s_tx_buff[MAX_BUFF_LEN]={0};	//发送字符串缓冲区，用于拼接字符串
 /*需提供的参数************************************************************************************/
-char* gSSID = "\"xiaoxxx\"";					//需要连接的Wifi名称
+char* gSSID = "\"Access\"";					//需要连接的Wifi名称
 char* gSSID_PASS = "\"12345678\"";		//Wifi密码
 char* gMQTT_CLIENTID = "\"FESA234FBDS24|securemode=3\\,signmethod=hmacsha1\\,timestamp=789|\"" ;
 char* gMQTT_USERNAME = "\"AccessControl&k1xclk3TfbJ\"" ;
@@ -19,11 +19,12 @@ char* gMQTT_PASSWD = "\"476d1a989b55c3b66faadc069a77d966083ebc5e\"" ;
 char* gMQTT_HOSTURL = "\"k1xclk3TfbJ.iot-as-mqtt.cn-shanghai.aliyuncs.com\"";
 char* gMQTT_PORT =  "1883";
 /*订阅与发布的路径*********************************************************************************/
-char* gMQTT_SUBPATH =  "\"/sys/k1xclk3TfbJ/AccessControl/thing/service/property/set\"";
+char* gMQTT_SUBPATH_Set =  "\"/sys/k1xclk3TfbJ/AccessControl/thing/service/property/set\"";
+char* gMQTT_SUBPATH_Get =  "\"/k1xclk3TfbJ/AccessControl/user/get\"";
 char* gMQTT_PUBPATH =  "\"/sys/k1xclk3TfbJ/AccessControl/thing/event/property/post\"";
 
 /*param***********************************************************************************/
-Uart_Rx_t g_xUart1_rx;
+static Uart_Rx_t g_xUart1_rx;
 extern SemaphoreHandle_t g_xMutex_Wifi ;
 /*Functions****************************************************************************************/
 
@@ -114,7 +115,7 @@ uint8_t Esp01s_SetSNTPServer(void)
 
 uint8_t Esp01s_ConnectWifi(void) {
 	snprintf(gEsp01s_tx_buff, MAX_BUFF_LEN, "%s,%s", gSSID, gSSID_PASS);// 使用 snprintf 进行安全的字符串拼接
-	return Esp01s_SendCommand("CWJAP", 1, gEsp01s_tx_buff,"OK",3000,&g_xUart1_rx);
+	return Esp01s_SendCommand("CWJAP", 1, gEsp01s_tx_buff,"OK",4000,&g_xUart1_rx);
 }
 
 //** 阿里云相关**//
@@ -133,7 +134,9 @@ uint8_t Esp01s_ConnectMQTT(void)
 
 uint8_t MQTT_Subscribe(void)
 {
-	snprintf(gEsp01s_tx_buff,MAX_BUFF_LEN, "%s,%s,%s" ,"0",gMQTT_SUBPATH,"1");// 使用 snprintf 进行安全的字符串拼接
+	snprintf(gEsp01s_tx_buff,MAX_BUFF_LEN, "%s,%s,%s" ,"0",gMQTT_SUBPATH_Set,"1");// 使用 snprintf 进行安全的字符串拼接
+	
+	snprintf(gEsp01s_tx_buff,MAX_BUFF_LEN, "%s,%s,%s" ,"0",gMQTT_SUBPATH_Get,"1");// 使用 snprintf 进行安全的字符串拼接
 	return Esp01s_SendCommand("MQTTSUB",1,gEsp01s_tx_buff,"OK",1000,&g_xUart1_rx);
 }
 

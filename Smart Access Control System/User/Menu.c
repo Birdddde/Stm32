@@ -9,11 +9,12 @@
 #include "finger.h"
 #include "rfid.h"
 #include "face.h"
+#include "storage.h"
 
-extern TaskHandle_t g_xRC522Handle,g_xMenuHandle,g_xAs608Handle,g_xK210Handle;
+extern TaskHandle_t g_xRC522Handle,g_xMenuHandle,g_xAs608Handle,g_xK210Handle, g_xWifiHandle;
 extern volatile MenuState_t menuState;
 extern uint8_t g_ucaAdmin_pass[4];
-
+extern wifi_error_t g_xError;
 void Pass_handlle(uint8_t* Password,Menu_Pass_Action_t Action);
 
 MenuItem* current_menu = NULL;  // 当前选中菜单
@@ -118,6 +119,7 @@ void Exit_Func(void) {
 	 vTaskResume(g_xRC522Handle);
 	 vTaskResume(g_xAs608Handle);
 	vTaskResume(g_xK210Handle);
+	vTaskResume(g_xWifiHandle);
 }
 
 void Pass_Func(){
@@ -241,7 +243,8 @@ void Pass_handlle(uint8_t* Password,Menu_Pass_Action_t Action){
 	uint8_t Pass_index = 0,key=0;
 	
 	OLED_Clear();
-	OLED_ShowString(0,8,"Password:",OLED_8X16);
+	OLED_ShowChinese(0,8,"密码");
+	OLED_ShowChar(32,13,':',OLED_6X8);
 	OLED_ShowString(0,64-8,"1:+ 2:- 3:Sel 4:OK",OLED_6X8);
 	OLED_Update();
 	
@@ -262,25 +265,28 @@ void Pass_handlle(uint8_t* Password,Menu_Pass_Action_t Action){
 		}
 		
 		OLED_Clear();
-		OLED_ShowString(Pass_index*10+40,33,"_",OLED_8X16);
-		OLED_ShowNum(40,32,Pass[0],1,OLED_8X16);
-		OLED_ShowNum(50,32,Pass[1],1,OLED_8X16);
-		OLED_ShowNum(60,32,Pass[2],1,OLED_8X16);
-		OLED_ShowNum(70,32,Pass[3],1,OLED_8X16);
-		OLED_UpdateArea(40,32,128,17);					
+		
+		OLED_ShowNum(50,8,Pass[0],1,OLED_8X16);
+		OLED_ShowNum(65,8,Pass[1],1,OLED_8X16);
+		OLED_ShowNum(80,8,Pass[2],1,OLED_8X16);
+		OLED_ShowNum(95,8,Pass[3],1,OLED_8X16);
+		OLED_ReverseArea(Pass_index*15+50,10,8,16);
+		OLED_UpdateArea(40,8,128,32);					
 	}
 	if(Action == Action_COMAPRE){
 		if( Pass[0] == Password[0] && Pass[1] == Password[1] && Pass[2] == Password[2] && Pass[3] == Password[3] ){
 			OLED_Clear();
-			OLED_ShowString(0,0,"Pass correct",OLED_6X8);
+			OLED_ShowChinese(0,8,"密码正确");
 			OLED_Update();
 			vTaskDelay(pdMS_TO_TICKS(1000));
 			xTaskNotify(g_xMenuHandle, 0x01, eSetBits);
 		}else{
 			OLED_Clear();
-			OLED_ShowString(0,0,"Pass incorrect",OLED_6X8);
+			OLED_ShowChinese(0,8,"密码错误");
 			OLED_Update();
 			vTaskDelay(pdMS_TO_TICKS(1000));
+			OLED_Clear();
+			OLED_Update();
 		}	
 	}
 	if(Action == Action_SET){
@@ -288,10 +294,16 @@ void Pass_handlle(uint8_t* Password,Menu_Pass_Action_t Action){
 		Password[1] = Pass[1];
 		Password[2] = Pass[2];
 		Password[3] = Pass[3];	
+		
 		OLED_Clear();
-		OLED_ShowString(0,0,"Pass set accessed",OLED_6X8);
+		OLED_ShowChinese(0,8,"密码设置成功");
 		OLED_Update();
-//		MQTT_UploadPass(Pass);		//上传阿里云
+		Admin_WritePassToFlash(Pass);
+		Admin_GetPass(Pass);
+		
+		if(!g_xError.error_code)
+			MQTT_UploadPass(Pass);		//上传阿里云
+
 		vTaskDelay(pdMS_TO_TICKS(1000));
 		Display_Refresh();
 	}

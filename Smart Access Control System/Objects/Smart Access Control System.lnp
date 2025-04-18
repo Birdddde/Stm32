@@ -41,7 +41,6 @@
 ".\objects\uart3.o"
 ".\objects\pwm.o"
 ".\objects\tim.o"
-".\objects\flash.o"
 ".\objects\main.o"
 ".\objects\stm32f10x_it.o"
 ".\objects\menu.o"

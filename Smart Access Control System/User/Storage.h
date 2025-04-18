@@ -7,12 +7,15 @@
 #define CARD_ID_SIZE             4
 #define INVALID_SUM              0xFFFF
 #define MAX_CARDS               16384    // 最大支持的卡片数量
+#define MAX_FINGERS             300    // 最大支持的卡片数量
 #define SECTOR_SIZE             4096     // 扇区大小
 #define BLOCK_SIZE              0x10000  // 块大小
 #define FLASH_TOTAL_SIZE        0x800000 // Flash总大小
 #define PAGE_SIZE               256      // 页编程大小
 #define CHECKSUM_ADD				  0x400000 // 校验和存储地址
 #define CARD_ADD					  0x410000 // 卡存储地址
+#define ADMIN_PASS				  0x200000 // 管理员密码存储地址
+#define FINGERID				  	  0x210000 // 指纹容量存储地址
 
 // 错误码定义
 typedef enum {
@@ -36,5 +39,10 @@ uint8_t RC522_ID_IsExist(uint8_t* CardID_Check, uint16_t* Cnt);
 void RC522_EraseAll(void);
 uint16_t RC522_GetSum(void);
 void RC522_WriteSumToFlash(uint16_t Sum);
+
+void Finger_WriteSumToFlash(uint16_t Sum);
+uint16_t Finger_GetSum(void);
+void Admin_WritePassToFlash(uint8_t* Pass);
+uint16_t Admin_GetPass(uint8_t *Pass);
 
 #endif

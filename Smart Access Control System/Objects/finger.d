@@ -46,4 +46,5 @@
 .\objects\finger.o: .\RTOS\inc\timers.h
 .\objects\finger.o: .\RTOS\inc\task.h
 .\objects\finger.o: .\RTOS\inc\list.h
+.\objects\finger.o: User\storage.h
 .\objects\finger.o: .\RTOS\inc\queue.h

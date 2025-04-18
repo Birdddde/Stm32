@@ -6,6 +6,7 @@
 
 xTimerHandle g_xKeyScanTimer,g_xUpdateTimer;  // 定时器句柄
 extern uint8_t g_ucDoor_status;
+extern wifi_error_t g_xError;
 
 // 定时器回调函数
 void vTimerCallback(xTimerHandle pxTimer)
@@ -37,14 +38,17 @@ void Timer_Create(void)
         xTimerStart(g_xKeyScanTimer, 0);  // 启动定时器
     }
 	 
-//    g_xUpdateTimer = xTimerCreate("UpdateTimer",  // 定时器名称
-//                                    xTimerPeriod[1],    // 定时器周期
-//                                    pdTRUE,          // 周期性定时器
-//                                    (void*)1,             // 定时器 ID
-//                                    vTimerCallback); // 回调函数
-//	 if (g_xUpdateTimer!= NULL) {
-//        xTimerStart(g_xUpdateTimer, 0);  // 启动定时器
-//    }	 
+#ifdef WIFI
+    g_xUpdateTimer = xTimerCreate("UpdateTimer",  // 定时器名称
+                                    xTimerPeriod[1],    // 定时器周期
+                                    pdTRUE,          // 周期性定时器
+                                    (void*)1,             // 定时器 ID
+                                    vTimerCallback); // 回调函数
+	 if (g_xUpdateTimer!= NULL) {
+        xTimerStart(g_xUpdateTimer, 0);  // 启动定时器
+    }	 
+#endif
+	 
 }
 
 

@@ -26,7 +26,8 @@ extern const uint8_t Diode[];
 //...
 extern const uint8_t Lock32x32[];
 extern const uint8_t Unlock32x32[];
-
+extern const uint8_t Wifi_Connected12x12[];
+extern const uint8_t Wifi_Disconnected12x12[];
 #endif
 
 

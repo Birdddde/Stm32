@@ -338,7 +338,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--no-multibyte-chars</MiscControls>
-              <Define>USE_STDPERIPH_DRIVER</Define>
+              <Define>USE_STDPERIPH_DRIVER,WIFI</Define>
               <Undefine></Undefine>
               <IncludePath>.\Startup;.\Stm32F10x_StdPeriph_Driver\inc;.\Stm32F10x_StdPeriph_Driver\src;.\Hardware;.\System;.\User;.\RTOS\inc;.\RTOS\src;.\RTOS\portable</IncludePath>
             </VariousControls>
@@ -425,6 +425,11 @@
               <FilePath>.\Hardware\OLED.c</FilePath>
             </File>
             <File>
+              <FileName>OLED.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Hardware\OLED.h</FilePath>
+            </File>
+            <File>
               <FileName>Key.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\Hardware\Key.c</FilePath>
@@ -433,11 +438,6 @@
               <FileName>Key.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\hardware\Key.h</FilePath>
-            </File>
-            <File>
-              <FileName>OLED.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\Hardware\OLED.h</FilePath>
             </File>
             <File>
               <FileName>OLED_Data.c</FileName>
@@ -818,16 +818,6 @@
               <FileName>Tim.h</FileName>
               <FileType>5</FileType>
               <FilePath>.\system\Tim.h</FilePath>
-            </File>
-            <File>
-              <FileName>Flash.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\System\Flash.h</FilePath>
-            </File>
-            <File>
-              <FileName>Flash.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\System\Flash.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1,5 +1,4 @@
 .\objects\flash.o: System\Flash.c
-.\objects\flash.o: System\flash.h
 .\objects\flash.o: .\Startup\stm32f10x.h
 .\objects\flash.o: .\Startup\core_cm3.h
 .\objects\flash.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stdint.h
@@ -29,3 +28,4 @@
 .\objects\flash.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h
 .\objects\flash.o: .\Stm32F10x_StdPeriph_Driver\inc\stm32f10x_wwdg.h
 .\objects\flash.o: .\Stm32F10x_StdPeriph_Driver\inc\misc.h
+.\objects\flash.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stdio.h

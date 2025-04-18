@@ -51,3 +51,4 @@
 .\objects\menu.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\menu.o: User\rfid.h
 .\objects\menu.o: User\face.h
+.\objects\menu.o: User\storage.h
