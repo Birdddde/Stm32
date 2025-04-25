@@ -1,5 +1,12 @@
 #include "stm32f10x.h"
 
+/**
+  * @brief  LED灯初始化
+  * @param  无
+  * @retval 无
+  * @note   使用PA12引脚作为LED控制引脚
+  *         高电平点亮LED，低电平熄灭LED
+  */
 void Light_Init(void)
 {
 
@@ -14,10 +21,24 @@ void Light_Init(void)
 	GPIO_ResetBits(GPIOA,GPIO_Pin_12);
 }
 
+/**
+  * @brief  LED灯点亮
+  * @param  无
+  * @retval 无
+  * @note   使用PA12引脚作为LED控制引脚
+  *         高电平点亮LED，低电平熄灭LED
+  */
 void Light_On(void){
 	GPIO_SetBits(GPIOA,GPIO_Pin_12);
 }
 
+/**
+  * @brief  LED灯熄灭
+  * @param  无
+  * @retval 无
+  * @note   使用PA12引脚作为LED控制引脚
+  *         高电平点亮LED，低电平熄灭LED
+  */
 void Light_Off(void){
 	GPIO_ResetBits(GPIOA,GPIO_Pin_12);
 }

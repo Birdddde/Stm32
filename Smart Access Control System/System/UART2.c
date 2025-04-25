@@ -9,6 +9,11 @@ uint8_t	Packet[AS608_MAX_PACKET_SIZE];
 UartReceiver Uart2Receiver;
 UartReceiver* Uart2_Rx = &Uart2Receiver;
 
+/**
+  * @brief  串口2发送一个字节
+  * @param  Byte 要发送的字节
+  * @retval 无
+  */
 void Serial2_SendBByte(uint8_t Byte)
 {
 	while (USART_GetFlagStatus(USART2, USART_FLAG_TXE) == RESET);
@@ -16,6 +21,12 @@ void Serial2_SendBByte(uint8_t Byte)
 	while (USART_GetFlagStatus(USART2, USART_FLAG_TC) == RESET);
 }
 
+/**
+  * @brief  串口2发送一个数组
+  * @param  Aarry 要发送的数组
+  * @param  Length 数组长度
+  * @retval 无
+  */
 void Serial2_SendAarry(uint8_t* Aarry ,uint8_t Length)
 {
 	for(uint8_t i = 0;i < Length; i++)
@@ -24,6 +35,11 @@ void Serial2_SendAarry(uint8_t* Aarry ,uint8_t Length)
 	}
 }
 
+/**
+  * @brief  串口2接收初始化
+  * @param  无
+  * @retval 无
+  */
 void Uart2_Receiver_Init(void) {
     Uart2_Rx->state = STATE_WAIT_HEADER1;
     Uart2_Rx->buffer = Packet;
@@ -31,6 +47,11 @@ void Uart2_Receiver_Init(void) {
     Uart2_Rx->received_len = 0;
 }
 
+/**
+  * @brief  串口2初始化
+  * @param  无
+  * @retval 无
+  */
 void Uart2_Init(void)
 {
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
@@ -69,6 +90,11 @@ void Uart2_Init(void)
     USART_Cmd(USART2,ENABLE);
 }
 
+/**
+  * @brief  处理接收到的字节
+  * @param  byte 接收到的字节
+  * @retval 无
+  */
 void vProcessReceivedByte(uint8_t byte) {
 	
     if (Uart2_Rx->data_len + 2 + 4 + 3 > AS608_MAX_PACKET_SIZE) {
@@ -138,7 +164,11 @@ void vProcessReceivedByte(uint8_t byte) {
 			break;
 	}
 }
-
+/**
+  * @brief  串口2初始化
+  * @param  无
+  * @retval 无
+  */
 void Serial2_Init(void){
     // 在函数内部创建队列
     xQueueUart2 = xQueueCreate(3, sizeof(Packet));
@@ -149,7 +179,11 @@ void Serial2_Init(void){
 	 Uart2_Receiver_Init();
 }
 
-// 串口接收中断服务函数
+/**
+  * @brief  串口2中断处理函数
+  * @param  无
+  * @retval 无
+  */
 void USART2_IRQHandler(void)
 {
 	uint8_t byte;

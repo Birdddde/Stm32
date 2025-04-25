@@ -338,7 +338,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--no-multibyte-chars</MiscControls>
-              <Define>USE_STDPERIPH_DRIVER,WIFI</Define>
+              <Define>USE_STDPERIPH_DRIVER,WIFI,ANIMATION</Define>
               <Undefine></Undefine>
               <IncludePath>.\Startup;.\Stm32F10x_StdPeriph_Driver\inc;.\Stm32F10x_StdPeriph_Driver\src;.\Hardware;.\System;.\User;.\RTOS\inc;.\RTOS\src;.\RTOS\portable</IncludePath>
             </VariousControls>

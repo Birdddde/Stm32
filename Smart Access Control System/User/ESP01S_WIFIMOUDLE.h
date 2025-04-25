@@ -19,6 +19,8 @@ uint8_t MQTT_Subscribe(void);
 uint8_t MQTT_UploadNon(uint8_t Non);
 uint8_t MQTT_UploadState(uint8_t State);
 uint8_t MQTT_UploadPass(uint8_t* Pass);
+uint8_t Esp01s_IsConnectWifi(void);
+uint8_t MQTT_UploadUnlockWay(uint16_t face_id, uint16_t finger_id, char* card_id);
 void ESP01S_Init(void);
 
 #endif

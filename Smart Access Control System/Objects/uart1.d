@@ -1,6 +1,5 @@
 .\objects\uart1.o: System\UART1.c
 .\objects\uart1.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\string.h
-.\objects\uart1.o: D:\Program Files\Keil5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\uart1.o: System\uart1.h
 .\objects\uart1.o: .\Startup\stm32f10x.h
 .\objects\uart1.o: .\Startup\core_cm3.h

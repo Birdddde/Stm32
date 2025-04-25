@@ -28,6 +28,10 @@ extern const uint8_t Lock32x32[];
 extern const uint8_t Unlock32x32[];
 extern const uint8_t Wifi_Connected12x12[];
 extern const uint8_t Wifi_Disconnected12x12[];
+extern const uint8_t Menu_CanAccess12x12[];
+extern const uint8_t Menu_CantAccess12x12[];
+extern const uint8_t Loading10x10[];
+
 #endif
 
 

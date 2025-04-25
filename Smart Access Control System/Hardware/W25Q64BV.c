@@ -6,11 +6,21 @@
 #define PIN_MISO GPIO_Pin_14
 #define PIN_MOSI GPIO_Pin_15
 
+/**
+  * @brief  写入SS引脚
+  * @param  BitValue: 0或1
+  * @retval 无
+  */
 void MySPI_W_SS(uint8_t BitValue)
 {
 	GPIO_WriteBit(GPIOB,PIN_SS,(BitAction)BitValue);
 }
 
+/**
+  * @brief  初始化SPI
+  * @param  无
+  * @retval 无
+  */
 void MySPI_Init(void)
 {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
@@ -49,6 +59,11 @@ void MySPI_Init(void)
 	MySPI_W_SS(1);
 }
 
+/**
+  * @brief  开始SPI通信
+  * @param  无
+  * @retval 无
+  */
 void MySPI_Start(void)
 {
 	MySPI_W_SS(0);
@@ -58,6 +73,11 @@ void MySPI_StoP(void)
 	MySPI_W_SS(1);
 }
 
+/**
+  * @brief  交换字节
+  * @param  Command: 命令
+  * @retval 数据
+  */
 uint8_t MySPI_SwapByte(uint8_t Command)
 {
 	uint8_t Data=0x00;
@@ -69,6 +89,12 @@ uint8_t MySPI_SwapByte(uint8_t Command)
 	return Data;
 }
 
+/**
+  * @brief  获取ID
+  * @param  MID: 制造商ID
+  * @param  DID: 设备ID
+  * @retval 无
+  */
 void W25Q64BV_GetID(uint8_t *MID,uint16_t *DID)
 {
     MySPI_Start();
@@ -80,6 +106,11 @@ void W25Q64BV_GetID(uint8_t *MID,uint16_t *DID)
     MySPI_StoP();
 }
 
+/**
+  * @brief  写入使能
+  * @param  无
+  * @retval 无
+  */
 void W25Q64BV_WriteEnable(void)
 {
     MySPI_Start();
@@ -87,6 +118,11 @@ void W25Q64BV_WriteEnable(void)
     MySPI_StoP();
 }
 
+/**
+  * @brief  写入禁止
+  * @param  无
+  * @retval 无
+  */
 void W25Q64BV_WriteDisable(void)
 {
     MySPI_Start();
@@ -94,6 +130,11 @@ void W25Q64BV_WriteDisable(void)
     MySPI_StoP();
 }
 
+/**
+  * @brief  等待忙
+  * @param  无
+  * @retval 无
+  */
 void W25Q64BV_WaitBusy(void)
 {
     uint32_t TimeOut=100000;
@@ -107,6 +148,11 @@ void W25Q64BV_WaitBusy(void)
     MySPI_StoP();	
 }
 
+/**
+  * @brief  扇区擦除
+  * @param  Address: 地址
+  * @retval 无
+  */
 void W25Q64BV_SectorErase(uint32_t Address)
 {
     W25Q64BV_WriteEnable();
@@ -120,6 +166,13 @@ void W25Q64BV_SectorErase(uint32_t Address)
     W25Q64BV_WriteDisable();
 }
 
+/**
+  * @brief  页编程
+  * @param  Address: 地址
+  * @param  Data: 数据
+  * @param  Length: 长度
+  * @retval 无
+  */
 void W25Q64BV_PageProgram(uint32_t Address,uint8_t* Data,uint16_t Length)
 {
     uint16_t i;
@@ -140,6 +193,13 @@ void W25Q64BV_PageProgram(uint32_t Address,uint8_t* Data,uint16_t Length)
     W25Q64BV_WriteDisable();
 }
 
+/**
+  * @brief  读取数据
+  * @param  Address: 地址
+  * @param  DataArray: 数据数组
+  * @param  Count: 长度
+  * @retval 无
+  */
 void W25Q64BV_ReadData(uint32_t Address,uint8_t* DataArray,uint16_t Count)
 {
     uint16_t i;
@@ -156,6 +216,11 @@ void W25Q64BV_ReadData(uint32_t Address,uint8_t* DataArray,uint16_t Count)
     MySPI_StoP();
 }
 
+/**
+  * @brief  初始化
+  * @param  无
+  * @retval 无
+  */
 void W25Q64BV_Init(void)
 {
     MySPI_Init();

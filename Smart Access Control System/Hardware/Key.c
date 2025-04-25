@@ -11,6 +11,12 @@ extern SemaphoreHandle_t g_xMutex_Key;
 uint8_t g_ucKeyNum = 0;
 
 /* @note:可使用EXTI让响应更快 */
+
+/**
+  * @brief  按键初始化
+  * @param  无
+  * @retval 无
+  */
 void Key_Init(void)
 {
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);//使能AFIO钟
@@ -24,6 +30,11 @@ void Key_Init(void)
 	GPIO_Init(GPIOB,&GPIO_InitStructure);
 }
 
+/**
+  * @brief  获取按键编号
+  * @param  无
+  * @retval 按键编号
+  */
 uint8_t KeyNum_Get_Callback(void)
 {
 	if	(GPIO_READ_PIN(GPIOB, GPIO_Pin_3) == 0)	return 4;
@@ -34,7 +45,11 @@ uint8_t KeyNum_Get_Callback(void)
 	return 0;
 }
 
-// 按键扫描函数
+/**
+  * @brief  按键扫描
+  * @param  无
+  * @retval 无
+  */
 void vKeyScan(void)
 {
 	static uint8_t lastState = 1;  // 记录上次按键状态
@@ -73,6 +88,11 @@ void vKeyScan(void)
 //    }
 //}
 
+/**
+  * @brief  获取按键编号
+  * @param  无
+  * @retval 按键编号
+  */
 uint8_t KeyNum_Get(void)
 {
 	uint8_t KeyNum = 0;

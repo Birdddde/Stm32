@@ -1,5 +1,4 @@
 #include "string.h"
-#include "stdio.h"
 #include "uart1.h"
 #include "freertos.h"
 #include "task.h"
@@ -8,9 +7,10 @@ uint8_t rx_buffer[RX_BUFFER_SIZE];      // DMA直接操作的缓冲区
 uint8_t rx_data_ready = 0;              // 数据接收完成标志
 volatile uint16_t rx_data_length = 0;   // 实际接收数据长度
 
-//-------------------------------------
-// UART1初始化（含空闲中断配置）
-//-------------------------------------
+/**
+ * @brief UART1初始化
+ * @param baudrate 波特率
+ */
 void Serial1_Init(uint32_t baudrate) {
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1 | RCC_APB2Periph_GPIOA, ENABLE);
 
@@ -42,9 +42,9 @@ void Serial1_Init(uint32_t baudrate) {
     USART_Cmd(USART1, ENABLE);
 }
 
-//-------------------------------------
-// DMA初始化（USART1_RX使用DMA1 Channel5）
-//-------------------------------------
+/**
+ * @brief DMA1初始化
+ */
 void DMA1_Init(void) {
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
@@ -67,6 +67,11 @@ void DMA1_Init(void) {
     DMA_Cmd(DMA1_Channel5, ENABLE);
 }
 
+/**
+ * @brief 获取UART1接收数据
+ * @param uart_Rx 接收数据结构体
+ * @return 1: 接收成功, 0: 接收失败
+ */
 uint8_t USART1_GetRxData(Uart_Rx_t* uart_Rx){
 	
 	if(rx_data_ready){
@@ -79,6 +84,10 @@ uint8_t USART1_GetRxData(Uart_Rx_t* uart_Rx){
 	return 0;
 }
 
+/**
+ * @brief 发送字符串
+ * @param String 字符串
+ */
 void Serial1_SendString(char* String)
 {
     char* pS=String;
@@ -90,9 +99,10 @@ void Serial1_SendString(char* String)
         pS++;
     }
 }
-//-------------------------------------
-// USART1中断服务函数（处理空闲中断）
-//-------------------------------------
+
+/**
+ * @brief USART1中断服务函数
+ */
 void USART1_IRQHandler(void) {
     if (USART_GetITStatus(USART1, USART_IT_IDLE) != RESET) {
         USART_ReceiveData(USART1);  // 清除空闲中断标志
@@ -108,8 +118,3 @@ void USART1_IRQHandler(void) {
     }
 }
 
-int fputc( int ch, FILE *f ){
-        USART_SendData(USART1,(u8) ch );
-        while(USART_GetFlagStatus(USART1,USART_FLAG_TXE)==RESET);
-        return ch;
-}

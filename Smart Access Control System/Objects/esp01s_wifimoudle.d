@@ -45,3 +45,6 @@
 .\objects\esp01s_wifimoudle.o: .\RTOS\inc\list.h
 .\objects\esp01s_wifimoudle.o: .\RTOS\inc\semphr.h
 .\objects\esp01s_wifimoudle.o: .\RTOS\inc\queue.h
+.\objects\esp01s_wifimoudle.o: .\Hardware\oled.h
+.\objects\esp01s_wifimoudle.o: .\Hardware\OLED_Data.h
+.\objects\esp01s_wifimoudle.o: .\System\delay.h

@@ -115,6 +115,8 @@
             ],
             "defines": [
                 "USE_STDPERIPH_DRIVER",
+                "WIFI",
+                "ANIMATION",
                 "__CC_ARM",
                 "__arm__",
                 "__align(x)=",

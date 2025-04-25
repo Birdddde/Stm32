@@ -12,6 +12,11 @@ void Servo_Init(void)
 	PWM_Init(720-1,2000-1);	//初始化舵机的底层PWM
 }
 
+/**
+  * @brief  舵机角度转换为脉冲宽度
+  * @param  angle: 角度
+  * @retval 脉冲宽度
+  */
 u16 Servo_Angle_To_Pulse(u8 angle)
 {
     // 0.5ms - 2.5ms对应0° - 180°
@@ -20,7 +25,11 @@ u16 Servo_Angle_To_Pulse(u8 angle)
     return (u16)(50 + (200 * angle / 180));
 }
 
-// 控制舵机转动到指定角度
+/**
+  * @brief  控制舵机转动到指定角度
+  * @param  angle: 角度
+  * @retval 无
+  */
 void Servo_Control_Angle(u8 angle)
 {
     u16 pulse = Servo_Angle_To_Pulse(angle);

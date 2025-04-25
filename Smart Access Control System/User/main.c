@@ -34,20 +34,24 @@ TaskHandle_t g_xWifiHandle = NULL;
 
 wifi_error_t g_xError = {0,NULL};	//阿里云连接错误标志位
 uint8_t g_ucDoor_status = 0;			//门锁状态标志位
+uint8_t g_ucWifi_iscon_flag = 1;		//Wifi连接标志位
+uint8_t g_ucWifi_testcon_flag = 0;	//Wifi测试连接标志位
 
 SemaphoreHandle_t g_xMutex_Wifi,g_xMutex_Key,g_xOledMutex;
+uint8_t g_ucaAdmin_pass[4];
 
 volatile MenuState_t menuState = MENU_INACTIVE;
 extern QueueHandle_t xQueueUart2;
-uint8_t g_ucaAdmin_pass[4];
 extern uint16_t g_usFingerId;
+extern xTimerHandle g_xPassLockTimer;
 
 uint8_t g_uckey = 0;	//按键
 
 void AS608Task(void *p){
 	as608_status_t as608_status;
 	uint8_t status = 0;
-
+	uint16_t finger_id;
+	
 	while(1)
 	{
 		if(xTaskNotifyWait(0x01, 0x01, NULL, pdMS_TO_TICKS(100)) == pdPASS) 
@@ -57,14 +61,14 @@ void AS608Task(void *p){
 			OLED_ShowString(0,30,"Flushing Finger...",OLED_6X8);
 			OLED_Update();
 			
-			status = Finger_Flush(&as608_status,NULL,NULL);		
+			status = Finger_Flush(&as608_status,&finger_id,NULL);		
 			OLED_ClearArea(0,30,128,8);
 			if( status == FLUSH_FINGER_SUCCESS ){
 				OLED_ShowString(0,30,"found",OLED_6X8);
 				OLED_UpdateArea(0,30,128,8);
-#ifdef WIFI					
-				MQTT_UploadState(1);
-#endif
+				if(g_ucWifi_iscon_flag){
+					MQTT_UploadUnlockWay(0,finger_id,"");
+				}
 			}				
 			if( status == FLUSH_FINGER_SEARCH_FAILED ){				
 				OLED_ShowString(0,30,"not found",OLED_6X8);
@@ -104,6 +108,8 @@ void MenuTask(void *p){
 			}
 			if(ulNotificationValue & 0x02){
 				Flag_Access = 1;
+				Beep_On(50);
+				Beep_On(50);
 			}
 		}
 		
@@ -115,10 +121,19 @@ void MenuTask(void *p){
 		   vTaskDelay(pdMS_TO_TICKS(10));
 		}else
 		{
-			if(g_xError.error_code)	
+			OLED_ShowImage(48,16,32,32,Lock32x32);
+			
+			if(g_ucWifi_iscon_flag != 1)	
 				OLED_ShowImage(0,0,12,12,Wifi_Disconnected12x12);
 			else
 				OLED_ShowImage(0,0,12,12,Wifi_Connected12x12);
+			
+			if(xTimerIsTimerActive(g_xPassLockTimer) == pdTRUE)	
+				OLED_ShowImage(15,0,12,12,Menu_CantAccess12x12);
+			else
+				OLED_ShowImage(15,0,12,12,Menu_CanAccess12x12);
+			
+			OLED_Update();
 			
 			if(Flag_Access){
 				Servo_Control_Angle(180);
@@ -126,11 +141,10 @@ void MenuTask(void *p){
 				vTaskDelay(pdMS_TO_TICKS(2000));
 				Flag_Access=0;
 			}else{
-				OLED_ShowImage(48,16,32,32,Lock32x32);
 				Servo_Control_Angle(0);
 				g_ucDoor_status = 0;
 			}			
-			OLED_Update();
+			
 			
 			g_uckey = KeyNum_Get();
 			if(g_uckey){	
@@ -145,15 +159,21 @@ void MenuTask(void *p){
 void RC522Task(void *p){
 	static uint8_t ucStatus;
 	static uint8_t CardId[4]={0};
-	
+	  char str[10];
+
 	while(1){
 
 		ucStatus = RFID_Scan(CardId);	
 		
 		if(ucStatus){
 			ucStatus = 0;
-				MQTT_UploadState(1);
-				xTaskNotify(g_xMenuHandle,0x02,eSetBits);
+			
+			if(g_ucWifi_iscon_flag){
+				sprintf(str,"%u%u%u%u",CardId[0],CardId[1],CardId[2],CardId[3]);
+				MQTT_UploadUnlockWay(0,0,str);
+			}
+			
+			xTaskNotify(g_xMenuHandle,0x02,eSetBits);
 		}
 		vTaskDelay(pdMS_TO_TICKS(500)); // 非激活状态时降低检测频
 	}
@@ -167,6 +187,10 @@ void K210Task(void *p){
 		ucStatus = Face_Scan();
 		if(ucStatus){
 			ucStatus = 0;
+			
+			if(g_ucWifi_iscon_flag){
+				MQTT_UploadUnlockWay(1,0,"");
+			}
 			xTaskNotify(g_xMenuHandle,0x02,eSetBits);
 		}
 			
@@ -191,9 +215,18 @@ void LightTask(void *p){
 
 void WifiTask(void *p){
 	Uart_Rx_t xUart1_rx;
+	if(g_ucWifi_iscon_flag)
+		MQTT_UploadPass(g_ucaAdmin_pass);
+
 	while(1){
-		
-		if(USART1_GetRxData(&xUart1_rx)){
+		if(g_ucWifi_testcon_flag)
+		{
+			g_ucWifi_iscon_flag = Esp01s_IsConnectWifi();
+			g_ucWifi_testcon_flag = 0;
+		}
+			
+		if(USART1_GetRxData(&xUart1_rx))
+		{
 			xUart1_rx.rx_buffer[xUart1_rx.rx_data_length + 1] = '\0';
 			if(strstr((const char*)xUart1_rx.rx_buffer,"@get_password"))
 				MQTT_UploadPass(g_ucaAdmin_pass);
@@ -203,7 +236,6 @@ void WifiTask(void *p){
 				Servo_Control_Angle(0);
 				g_ucDoor_status = 0;
 			}
-		
 		}
 		vTaskDelay( pdMS_TO_TICKS(500) );
 	}
@@ -218,11 +250,13 @@ int main(void)
    Key_Init();  
 	Finger_Init();
 	Face_Init();
+	Storage_Init();
 	Beep_Init();
 	Servo_Init();
 	Light_Init();
 	Body_Infra_Init();
 	ESP01S_Init();
+	
 	Delay_ms(2000);	//等待硬件初始化完成 
 	
 	g_xMutex_Key = xSemaphoreCreateMutex();
@@ -236,7 +270,6 @@ int main(void)
 	Esp01s_ConnectAli(&g_xError);
 	OLED_Clear();	//清屏
 	OLED_Update();
-	MQTT_UploadPass(g_ucaAdmin_pass);
 #endif
 
 	Timer_Create();	//创建软件定时器
@@ -253,6 +286,7 @@ int main(void)
 		
 		Delay_ms(5000);
 		OLED_Clear();	//清屏
+		g_ucWifi_iscon_flag = 0;
 	}		
 	
 	xTaskCreate(MenuTask, "Menu", 128, NULL, 60, &g_xMenuHandle);

@@ -16,6 +16,11 @@ uint8_t buffer[AS608_MAX_PACKET_SIZE];
 As608_PacketInfo_t As608_Packet_t={0xEF01,0xFFFFFFFF};
 As608_PacketInfo_t* As608_Packet = &As608_Packet_t;
 
+/**
+  * @brief  初始化PS状态GPIO
+  * @param  无
+  * @retval 无
+  */
 void PS_StaGPIO_Init(void){   
 	GPIO_InitTypeDef  GPIO_InitStructure;
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
@@ -27,13 +32,21 @@ void PS_StaGPIO_Init(void){
 	GPIO_ResetBits(GPIOA,GPIO_Pin_1);
 }
 
-
-
+/**
+  * @brief  初始化AS608传感器
+  * @param  无
+  * @retval 无
+  */
 void AS608_Init(void) {
 	 Serial2_Init();
 	 PS_StaGPIO_Init();
 }
 
+/**
+  * @brief  读取AS608传感器数据
+  * @param  delay_ms: 延时时间
+  * @retval 1:成功 0:失败
+  */
 uint8_t AS608_Read(uint16_t delay_ms){
 	
 	uint8_t pindex = 10;
@@ -66,6 +79,15 @@ uint8_t AS608_Read(uint16_t delay_ms){
 	return 0;
 }
 
+/**
+  * @brief  发送命令
+  * @param  Identifier: 标识符
+  * @param  Packet_Length: 包长度
+  * @param  Command: 命令
+  * @param  Params: 参数
+  * @retval 1:成功 0:失败
+  */
+uint8_t AS608_SendCommand(uint8_t Identifier,uint16_t Packet_Length,uint8_t Command,uint8_t* Params){
 uint8_t AS608_SendCommand(uint8_t Identifier,uint16_t Packet_Length,uint8_t Command,uint8_t* Params){
 	
 	uint16_t checknum = Identifier + Packet_Length + Command;
@@ -96,6 +118,11 @@ uint8_t AS608_SendCommand(uint8_t Identifier,uint16_t Packet_Length,uint8_t Comm
 	return 0;
 }
 
+/**
+  * @brief  获取图像
+  * @param  Status: 状态
+  * @retval 1:成功 0:失败
+  */
 uint8_t PS_GetImage(as608_status_t* Status){
 	uint16_t buffer_length = 0x0003;	
 	
@@ -108,6 +135,12 @@ uint8_t PS_GetImage(as608_status_t* Status){
 		return 0;	//Receive failed
 }
 
+/**
+  * @brief  生成字符
+  * @param  Status: 状态
+  * @param  Buffer_id: 缓冲区ID
+  * @retval 1:成功 0:失败
+  */
 uint8_t PS_GenChar(as608_status_t* Status,as608_buffer_number_t Buffer_id){
 
 	uint16_t buffer_length = 0x0004;
@@ -126,6 +159,16 @@ uint8_t PS_GenChar(as608_status_t* Status,as608_buffer_number_t Buffer_id){
 		return 0;	//Receive failed
 }
 
+/**
+  * @brief  搜索字符
+  * @param  Status: 状态
+  * @param  Page_id: 页ID
+  * @param  Match_score: 匹配得分
+  * @param  Buffer_id: 缓冲区ID
+  * @param  StartPage: 起始页
+  * @param  PageNum: 页数
+  * @retval 1:成功 0:失败
+  */
 uint8_t PS_Search(as608_status_t* Status,uint16_t* Page_id ,uint16_t* Match_score ,as608_buffer_number_t Buffer_id,uint16_t StartPage,uint16_t PageNum){
 
 	uint16_t buffer_length = 0x0008;
@@ -152,6 +195,11 @@ uint8_t PS_Search(as608_status_t* Status,uint16_t* Page_id ,uint16_t* Match_scor
 		return 0;	//Receive failed
 }
 
+/**
+  * @brief  注册模型
+  * @param  Status: 状态
+  * @retval 1:成功 0:失败
+  */
 uint8_t PS_RegModel(as608_status_t* Status){
 	uint16_t buffer_length = 0x0003;	
 	
@@ -164,6 +212,13 @@ uint8_t PS_RegModel(as608_status_t* Status){
 		return 0;	//Receive failed
 }
 
+/**
+  * @brief  存储字符
+  * @param  Status: 状态
+  * @param  Buffer_id: 缓冲区ID
+  * @param  Page_id: 页ID
+  * @retval 1:成功 0:失败
+  */
 uint8_t PS_StoreChar(as608_status_t* Status,as608_buffer_number_t Buffer_id,uint16_t Page_id){
 
 	uint16_t buffer_length = 0x0006;
@@ -184,6 +239,13 @@ uint8_t PS_StoreChar(as608_status_t* Status,as608_buffer_number_t Buffer_id,uint
 		return 0;	//Receive failed
 }
 
+/**
+  * @brief  删除字符
+  * @param  Status: 状态
+  * @param  Page_id: 页ID
+  * @param  Count: 数量
+  * @retval 1:成功 0:失败
+  */
 uint8_t PS_DeletChar(as608_status_t* Status,uint16_t Page_id,uint16_t Count){
 
 	uint16_t buffer_length = 0x0007;
@@ -205,6 +267,11 @@ uint8_t PS_DeletChar(as608_status_t* Status,uint16_t Page_id,uint16_t Count){
 		return 0;	//Receive failed
 }
 
+/**
+  * @brief  清空缓冲区
+  * @param  Status: 状态
+  * @retval 1:成功 0:失败
+  */
 uint8_t PS_Empty(as608_status_t* Status){
 	uint16_t buffer_length = 0x0003;	
 	

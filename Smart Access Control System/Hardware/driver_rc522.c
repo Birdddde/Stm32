@@ -29,6 +29,11 @@
 
 #define   RC522_Delay()          Delay_us(200)
 
+/**
+  * @brief  初始化RC522的GPIO
+  * @param  无
+  * @retval 无
+  */
 void RC522_GPIO_Init( void )
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -50,7 +55,11 @@ void RC522_GPIO_Init( void )
 	GPIO_Init( GPIOA, &GPIO_InitStructure );
 }
 
-/* 软件模拟SPI发送一个字节数据，高位先行 */
+/**
+  * @brief  软件模拟SPI发送一个字节数据，高位先行
+  * @param  byte: 要发送的字节
+  * @retval 无
+  */
 void RC522_SPI_SendByte( uint8_t byte )
 {
 	uint8_t n;
@@ -73,7 +82,11 @@ void RC522_SPI_SendByte( uint8_t byte )
 	}
 }
 
-/* 软件模拟SPI读取一个字节数据，先读高位 */
+/**
+  * @brief  软件模拟SPI读取一个字节数据，先读高位
+  * @param  无
+  * @retval 读取的字节
+  */
 uint8_t RC522_SPI_ReadByte( void )
 {
 	uint8_t n,data;
@@ -94,6 +107,11 @@ uint8_t RC522_SPI_ReadByte( void )
 	return data;
 }
 
+/**
+  * @brief  读取RC522的寄存器
+  * @param  Address: 寄存器地址
+  * @retval 读取的字节
+  */
 uint8_t RC522_Read_Register( uint8_t Address )
 {
 	uint8_t data,Addr;
@@ -108,6 +126,12 @@ uint8_t RC522_Read_Register( uint8_t Address )
 	return data;
 }
 
+/**
+  * @brief  写入RC522的寄存器
+  * @param  Address: 寄存器地址
+  * @param  data: 要写入的数据
+  * @retval 无
+  */
 void RC522_Write_Register( uint8_t Address, uint8_t data )
 {
 	uint8_t Addr;
@@ -120,18 +144,35 @@ void RC522_Write_Register( uint8_t Address, uint8_t data )
 	RC522_CS_Disable();
 }
 
+/**
+  * @brief  设置RC522的寄存器位
+  * @param  Address: 寄存器地址
+  * @param  mask: 要设置的位
+  * @retval 无
+  */
 void RC522_SetBit_Register( uint8_t Address, uint8_t mask ){
 	  uint8_t temp;       
 	  temp = RC522_Read_Register( Address );/* 获取寄存器当前值 */        
 	  RC522_Write_Register( Address, temp|mask );/* 对指定位进行置位操作后，再将值写入寄存器 */
 }
 
+/**
+  * @brief  清除RC522的寄存器位
+  * @param  Address: 寄存器地址
+  * @param  mask: 要清除的位
+  * @retval 无
+  */
 void RC522_ClearBit_Register( uint8_t Address, uint8_t mask ){
   uint8_t temp;
   temp = RC522_Read_Register( Address );/* 获取寄存器当前值 */
   RC522_Write_Register( Address, temp&(~mask) );  /* 对指定位进行清位操作后，再将值写入寄存器 */
 }
-///////////////////STM32对RC522的基础通信///////////////////////////////////
+
+/**
+  * @brief  重置RC522
+  * @param  无
+  * @retval 无
+  */
 void RC522_Reset( void )
 {
 	RC522_Reset_Disable();
@@ -154,6 +195,11 @@ void RC522_Reset( void )
 	RC522_Write_Register( TxAutoReg, 0x40 );     //调制发送信号为100%ASK
 }
 
+/**
+  * @brief  开启天线
+  * @param  无
+  * @retval 无
+  */
 void RC522_Antenna_On( void )
 {
   uint8_t k;
@@ -163,10 +209,20 @@ void RC522_Antenna_On( void )
 	 RC522_SetBit_Register( TxControlReg, 0x03 );
 }
 
+/**
+  * @brief  关闭天线
+  * @param  无
+  * @retval 无
+  */
 void RC522_Antenna_Off( void ){       
   RC522_ClearBit_Register( TxControlReg, 0x03 );/* 直接对相应位清零 */
 }
 
+/**
+  * @brief  配置RC522的类型
+  * @param  Type: 类型
+  * @retval 无
+  */
 void RC522_Config_Type( char Type )
 {
         if( Type=='A' )
@@ -582,6 +638,11 @@ char PcdHalt( void )
 
 }
 
+/**
+  * @brief  初始化RC522
+  * @param  无
+  * @retval 无
+  */
 void RC522_Init( void )
 {
 	RC522_GPIO_Init();
