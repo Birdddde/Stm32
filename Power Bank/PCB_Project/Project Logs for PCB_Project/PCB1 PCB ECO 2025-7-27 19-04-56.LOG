@@ -1,0 +1,12 @@
+Removed Pin From Net: NetName=NetC4_1 Pin=Q1-1
+Removed Pin From Net: NetName=NetC1_1 Pin=Q1-3
+Removed Pin From Net: NetName=VIN Pin=USB2-A4
+Removed Pin From Net: NetName=VIN Pin=USB2-A9
+Removed Pin From Net: NetName=VIN Pin=USB2-B4
+Change Component Footprint: Designator=Q1 Old Footprint=E3 New Footprint=SOT23_M
+Added Pin To Net: NetName=NetC1_1 Pin=Q1-1
+Added Pin To Net: NetName=NetC4_1 Pin=Q1-3
+Added Pin To Net: NetName=NetUSB2_A4 Pin=USB2-A4
+Added Pin To Net: NetName=NetUSB2_A4 Pin=USB2-A9
+Added Pin To Net: NetName=NetUSB2_A4 Pin=USB2-B4
+Added Room: Name=Sheet1

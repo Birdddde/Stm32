@@ -1,0 +1,40 @@
+Altium Designer Pick and Place Locations
+E:\A_Learn\AD\Power Bank\PCB_Project\Project Outputs for PCB_Project\Pick Place for PCB1.txt
+
+========================================================================================================================
+File Design Information:
+
+Date:       29/07/25
+Time:       23:24
+Revision:   Not in VersionControl
+Variant:    No variations
+Units used: mil
+
+Designator Comment         Layer    Footprint                          Center-X(mil) Center-Y(mil) Rotation Description        
+U2         1uH             TopLayer IND-SMD_L4.4-W4.2                  1245.000      -650.000      90       ""                 
+USB2       KH-TYPE-C-16P   TopLayer USB-C-SMD_KH-TYPE-C-16P            209.053       -564.999      270      ""                 
+USB1       "10.0 QTJ6.3"   TopLayer USB-A-SMD_10.0-QTJ6.3              1340.000      -225.001      180      ""                 
+U1         IP5306          TopLayer ESOP-8_L4.9-W3.9-P1.27-LS6.0-BL-EP 989.055       -575.000      270      IC                 
+SW1        TS-1101-C-W     TopLayer SW-SMD_L6.0-W3.3-LS8.0             741.000       -75.000       180      ""                 
+R7         Res             TopLayer 6-0805_N                           1065.000      -860.000      180      ""                 
+R6         Res             TopLayer 6-0805_N                           1065.000      -765.000      180      ""                 
+R5         Res             TopLayer 6-0805_N                           695.000       -650.000      360      ""                 
+R4         Res             TopLayer 6-0805_N                           1330.000      -845.000      270      ""                 
+R3         Res             TopLayer 6-0805_N                           483.622       -650.000      360      ""                 
+R2         Res             TopLayer 6-0805_N                           489.055       -450.000      90       ""                 
+R1         Res             TopLayer 6-0805_N                           640.000       -450.000      270      ""                 
+Q1         MOSFET-P        TopLayer SOT23_M                            1720.000      -525.000      270      "P-Channel MOSFET" 
+LED5       LED_Patch       TopLayer PCBComponent_1                     900.000       -808.310      90       0805               
+LED4       LED_Patch       TopLayer PCBComponent_1                     760.000       -798.310      90       0805               
+LED3       LED_Patch       TopLayer PCBComponent_1                     655.000       -798.310      270      0805               
+LED2       LED_Patch       TopLayer PCBComponent_1                     550.000       -796.690      90       0805               
+LED1       LED_Patch       TopLayer PCBComponent_1                     445.000       -798.310      270      0805               
+CN1        HX25003-2WAP    TopLayer CONN-TH_2P-P2.50_HX25003-2WAP      1670.787      -755.000      360      ""                 
+C8         Capacitor_Patch TopLayer C0805                              519.528       -320.000      180      0805               
+C7         Capacitor_Patch TopLayer C0805                              1200.000      -850.000      270      0805               
+C6         Capacitor_Patch TopLayer C0805                              769.055       -457.874      270      0805               
+C5         Capacitor_Patch TopLayer C0805                              1440.000      -840.000      90       0805               
+C4         Capacitor_Patch TopLayer C0805                              1785.000      -390.000      360      0805               
+C3         Capacitor_Patch TopLayer C0805                              1555.000      -595.000      270      0805               
+C2         Capacitor_Patch TopLayer C0805                              1470.000      -595.000      270      0805               
+C1         Capacitor_Patch TopLayer C0805                              1385.000      -595.000      270      0805               

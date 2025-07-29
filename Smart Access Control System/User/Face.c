@@ -78,6 +78,7 @@ void Face_Remove_Handler(void){
 	OLED_Clear();
 	OLED_ShowChinese(40,32,"移除人脸");
 	OLED_Update();
+	vTaskDelay(pdMS_TO_TICKS(1500));
 	while(1){
 		uint8_t* data = Uart3_GetData(&rx_flag);
 		if (KeyNum_Get() == 4) 
